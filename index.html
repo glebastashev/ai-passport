@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Паспорт ИИ-инженера</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#111827;
+  --paper:#F9F8F3;
+  --blue:#4460C4;
+  --blue-deep:#3552B0;
+  --muted:#7A7E8C;
+  --muted-paper:#8B8877;
+  --line:rgba(249,248,243,.14);
+  --line-paper:rgba(17,24,39,.14);
+  --display:'Unbounded',sans-serif;
+  --body:'Manrope',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--body);
+  background:var(--ink);
+  color:var(--paper);
+  line-height:1.6;
+  padding-bottom:96px;
+  position:relative;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.17;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.9'/%3E%3C/svg%3E");
+}
+.wrap{max-width:760px;margin:0 auto;padding:30px 22px 40px;position:relative;z-index:1}
+a{color:inherit}
+
+.eyebrow{
+  font-family:var(--display);font-weight:500;font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+  display:inline-flex;align-items:center;gap:9px;color:var(--muted);margin-bottom:18px;
+}
+.eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--blue);display:inline-block}
+
+.hero{position:relative;padding:10px 0 28px;border-bottom:1px solid var(--line);margin-bottom:30px}
+h1{
+  font-family:var(--display);font-weight:800;font-size:clamp(27px,5vw,40px);line-height:1.12;
+  letter-spacing:-.01em;margin-bottom:14px;max-width:600px;
+}
+h1 em{font-style:normal;color:#fff;background:var(--blue);padding:0 10px;border-radius:8px;box-decoration-break:clone;-webkit-box-decoration-break:clone;}
+.hero p{font-size:15.5px;color:#B9BCC7;max-width:560px;margin-bottom:6px}
+.hero .rule{font-size:13.5px;color:var(--muted);font-family:var(--mono)}
+
+.pagehead{display:flex;align-items:baseline;gap:12px;margin:6px 0 6px}
+.pagehead .pnum{font-family:var(--mono);font-size:12px;color:var(--blue);letter-spacing:.08em}
+h2{font-family:var(--display);font-weight:700;font-size:clamp(19px,3.6vw,26px);line-height:1.2;margin-bottom:6px}
+.pagesub{color:#B9BCC7;font-size:14.5px;margin-bottom:22px;max-width:560px}
+
+.step{display:none;animation:fadeUp .35s ease}
+.step.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.q{margin-bottom:26px}
+.q-label{font-weight:800;font-size:15.5px;margin-bottom:4px;line-height:1.35}
+.q-hint{font-size:13px;color:var(--muted);margin-bottom:10px}
+.q-label .opt{color:var(--muted);font-weight:500;font-size:12.5px;font-family:var(--mono)}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  border:1.5px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer;
+  font-size:14px;font-weight:600;color:#D9DBE1;background:rgba(249,248,243,.03);
+  transition:all .15s ease;user-select:none;line-height:1.35;
+}
+.chip:hover{border-color:rgba(68,96,196,.65)}
+.chip.sel{background:var(--blue);border-color:var(--blue);color:#fff}
+.chips.stack .chip{width:100%}
+.chips.scale .chip{min-width:44px;text-align:center;padding:10px 0;flex:1}
+
+input[type=text],input[type=tel],textarea{
+  width:100%;background:rgba(249,248,243,.045);border:1.5px solid var(--line);border-radius:12px;
+  color:var(--paper);font-family:var(--body);font-size:14.5px;padding:11px 14px;outline:none;
+  transition:border-color .15s ease;
+}
+input:focus,textarea:focus{border-color:var(--blue)}
+textarea{min-height:84px;resize:vertical}
+::placeholder{color:#6E7280}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+
+.req{color:var(--blue);font-weight:800}
+.q.err .q-label{color:#E8A2A2}
+.q.err input,.q.err textarea{border-color:#B0524D}
+.q.err .chips .chip{border-color:rgba(176,82,77,.55)}
+
+.stickybar{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;
+  background:rgba(17,24,39,.92);backdrop-filter:blur(10px);
+  border-top:1px solid var(--line);
+  display:flex;align-items:center;gap:16px;padding:14px 20px;
+}
+.track{flex:1;height:7px;border-radius:99px;background:rgba(249,248,243,.1);overflow:hidden}
+.fill{height:100%;width:0%;background:var(--blue);border-radius:99px;transition:width .3s ease}
+.stepnote{font-family:var(--mono);font-size:11.5px;color:var(--muted);white-space:nowrap}
+.btn{
+  font-family:var(--display);font-weight:700;font-size:13.5px;letter-spacing:.02em;
+  background:var(--blue);color:#fff;border:none;border-radius:12px;padding:13px 22px;cursor:pointer;
+  transition:transform .12s ease, background .15s ease;white-space:nowrap;
+}
+.btn:hover{background:var(--blue-deep);transform:translateY(-1px)}
+.btn.ghost{background:transparent;border:1.5px solid var(--line);color:#D9DBE1;font-size:12.5px;padding:12px 16px}
+.btn.ghost:hover{border-color:var(--blue);color:#fff}
+
+/* ---------- RESULTS ---------- */
+#results{display:none;background:var(--paper);color:var(--ink);position:relative;z-index:1;margin-top:34px}
+#results.is-visible{display:block}
+#results::before{
+  content:'';position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.16'/%3E%3C/svg%3E");
+}
+#results .wrap{padding-top:38px}
+#results .eyebrow{color:var(--muted-paper)}
+#results h2{color:var(--ink)}
+#results .pagesub{color:#5A5C66}
+
+.passport-card{
+  border:1.5px dashed rgba(17,24,39,.3);border-radius:18px;padding:22px 20px 16px;margin-bottom:26px;
+  position:relative;background:#fff;
+}
+.passport-card .serial{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted-paper);text-transform:uppercase;margin-bottom:14px}
+.passport-meta{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13.5px;margin-bottom:6px}
+.passport-meta b{font-weight:800}
+.passport-meta .k{color:var(--muted-paper);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.08em;display:block}
+
+.radar-panel{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:center;margin-bottom:8px}
+@media(max-width:680px){.radar-panel{grid-template-columns:1fr}}
+.radar-box{width:100%;max-width:360px;margin:0 auto;display:block}
+.radar-legend{display:flex;flex-direction:column;gap:7px}
+.rl{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line-paper);border-radius:12px;background:#fff}
+.rl .b{
+  font-family:var(--display);font-weight:700;font-size:11px;width:22px;height:22px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;background:var(--ink);color:var(--paper);flex:none;
+}
+.rl.top .b{background:var(--blue)}
+.rl .tx{flex:1;min-width:0}
+.rl .nm{display:block;font-weight:800;font-size:13.5px;line-height:1.25}
+.rl .gl{display:block;font-size:11.5px;color:var(--muted-paper);font-family:var(--mono)}
+.rl .sc{font-family:var(--display);font-weight:700;font-size:13px;color:var(--blue-deep)}
+
+.verdict-intro{font-size:14px;color:#4A4C55;margin:18px 0 16px;max-width:600px}
+.vcard{border:1px solid var(--line-paper);border-radius:16px;padding:20px;margin-bottom:14px;background:#fff}
+.vcard.top{border:2px solid var(--blue);position:relative}
+.vcard .vh{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.vtag{
+  font-family:var(--display);font-weight:700;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  padding:5px 10px;border-radius:99px;background:var(--blue);color:#fff;
+}
+.vcard.rest .vtag{background:rgba(17,24,39,.08);color:#4A4C55}
+.vname{font-family:var(--display);font-weight:700;font-size:15.5px}
+.vcard p{font-size:14px;color:#3A3C45;margin-bottom:4px}
+.vmoney{
+  font-family:var(--mono);font-size:12.5px;color:var(--blue-deep);background:rgba(68,96,196,.08);
+  border-radius:10px;padding:9px 12px;margin:10px 0;
+}
+.curriculum{margin-top:12px;border-top:1px dashed var(--line-paper);padding-top:12px}
+.curriculum-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-paper);margin-bottom:8px}
+.curriculum-grid{display:flex;flex-wrap:wrap;gap:6px}
+.curriculum-item{font-size:12.5px;font-weight:600;border:1px solid var(--line-paper);border-radius:99px;padding:5px 11px;background:#fff}
+.curriculum-note{font-size:12.5px;color:#4A4C55;margin-top:10px}
+.curriculum-note b{color:var(--blue-deep)}
+
+.speed{
+  display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0 8px;
+}
+@media(max-width:560px){.speed{grid-template-columns:1fr}}
+.speed .sc-card{border:1px solid var(--line-paper);border-radius:16px;padding:18px;background:#fff}
+.speed .sc-k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-paper);margin-bottom:6px}
+.speed .sc-v{font-family:var(--display);font-weight:700;font-size:19px;color:var(--blue-deep);line-height:1.2}
+.speed .sc-d{font-size:12.5px;color:#4A4C55;margin-top:6px}
+
+.cta{background:var(--ink);color:var(--paper);border-radius:20px;padding:26px 22px;margin:26px 0 10px;position:relative;overflow:hidden}
+.cta::before{
+  content:'';position:absolute;inset:0;pointer-events:none;opacity:.14;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)' opacity='0.9'/%3E%3C/svg%3E");
+}
+.cta-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:20px;align-items:center;position:relative}
+@media(max-width:640px){.cta-grid{grid-template-columns:1fr}}
+.cta h3{font-family:var(--display);font-weight:700;font-size:clamp(17px,3vw,22px);line-height:1.25;margin-bottom:10px}
+.cta p{font-size:14px;color:#B9BCC7;margin-bottom:16px}
+.preview-card{background:rgba(249,248,243,.05);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+.pv-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.pv-cap{font-size:11.5px;color:var(--muted);margin-top:6px}
+
+footer{position:relative;z-index:1;text-align:center;font-family:var(--mono);font-size:11.5px;color:var(--muted);padding:26px 0 18px}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow"><span class="dot"></span>ИИ-ИНЖЕНЕР · диагностика потенциала</div>
+    <h1>Паспорт <em>ИИ-инженера</em></h1>
+    <p>5 коротких страниц. Ответы соберутся в твой личный паспорт: в каких направлениях ИИ-услуг у тебя больше всего потенциала и где тебе будет проще и быстрее заработать.</p>
+    <p class="rule">// заполняй честно: паспорт увидишь только ты и куратор разбора</p>
+  </div>
+
+  <!-- ============ STEP 1 ============ -->
+  <section class="step" data-step="1">
+    <div class="pagehead"><span class="pnum">стр. 1 / 5</span></div>
+    <h2>Данные владельца</h2>
+    <p class="pagesub">Как в настоящем паспорте, только без очередей и госпошлины.</p>
+
+    <div class="q" data-key="name" data-req="1">
+      <div class="q-label">Как тебя зовут? <span class="req">*</span></div>
+      <input type="text" placeholder="Имя">
+    </div>
+    <div class="grid2">
+      <div class="q" data-key="age" data-req="1">
+        <div class="q-label">Сколько тебе лет? <span class="req">*</span></div>
+        <input type="text" inputmode="numeric" placeholder="Возраст">
+      </div>
+      <div class="q" data-key="city">
+        <div class="q-label">Где живёшь?</div>
+        <input type="text" placeholder="Город">
+      </div>
+    </div>
+    <div class="q" data-key="job">
+      <div class="q-label">Кем работаешь сейчас?</div>
+      <input type="text" placeholder="Например: менеджер, водитель, в декрете…">
+    </div>
+    <div class="q" data-key="income" data-req="1">
+      <div class="q-label">Сколько зарабатываешь в месяц? <span class="req">*</span></div>
+      <div class="chips" data-single="1">
+        <span class="chip">до 30 000 ₽</span><span class="chip">30–60 тыс ₽</span><span class="chip">60–100 тыс ₽</span><span class="chip">больше 100 тыс ₽</span>
+      </div>
+    </div>
+    <div class="q" data-key="why_me">
+      <div class="q-label">Почему решил пройти тест-драйв именно у нас?</div>
+      <textarea placeholder="Что зацепило: видео, кейсы, подача, тема…"></textarea>
+    </div>
+  </section>
+
+  <!-- ============ STEP 2 ============ -->
+  <section class="step" data-step="2">
+    <div class="pagehead"><span class="pnum">стр. 2 / 5</span></div>
+    <h2>Твои склонности</h2>
+    <p class="pagesub">Здесь нет правильных ответов. Выбирай то, что ближе: по этим ответам паспорт определит твои сильные направления.</p>
+
+    <div class="q scored" data-key="t1" data-req="1">
+      <div class="q-label">Как тебе комфортнее решать задачи? <span class="req">*</span></div>
+      <div class="chips stack" data-single="1">
+        <span class="chip" data-sc="bots:3,sites:1">В переписке и разговоре с людьми</span>
+        <span class="chip" data-sc="auto:3,data:2">Наедине с задачей, чтобы никто не дёргал</span>
+        <span class="chip" data-sc="content:3,sites:2">Придумывать, пробовать, переделывать</span>
+        <span class="chip" data-sc="data:3,auto:2">Разложить всё по полочкам и идти по списку</span>
+      </div>
+    </div>
+    <div class="q scored" data-key="t2" data-req="1">
+      <div class="q-label">Что тебе всегда давалось легче всего? <span class="req">*</span></div>
+      <div class="chips stack" data-single="1">
+        <span class="chip" data-sc="bots:3">Договариваться и убеждать</span>
+        <span class="chip" data-sc="auto:3,sites:1">Собирать, чинить, настраивать</span>
+        <span class="chip" data-sc="content:3,sites:2">Рисовать, писать, придумывать</span>
+        <span class="chip" data-sc="data:3">Математика, таблицы, точность</span>
+      </div>
+    </div>
+    <div class="q scored" data-key="t3" data-req="1">
+      <div class="q-label">Выбери задачу на вечер: <span class="req">*</span></div>
+      <div class="chips stack" data-single="1">
+        <span class="chip" data-sc="bots:3,auto:1">Настроить переписку, которая сама продаёт</span>
+        <span class="chip" data-sc="auto:3">Сделать так, чтобы рутина крутилась без меня</span>
+        <span class="chip" data-sc="sites:3,content:2">Собрать красивую страницу или картинку</span>
+        <span class="chip" data-sc="data:3">Найти, где в цифрах прячется ошибка</span>
+      </div>
+    </div>
+    <div class="q scored" data-key="t4" data-req="1">
+      <div class="q-label">Как ты с рутиной? <span class="req">*</span></div>
+      <div class="chips stack" data-single="1">
+        <span class="chip" data-sc="auto:2,data:2">Люблю повторяемость и порядок</span>
+        <span class="chip" data-sc="content:2,sites:2">Быстро скучаю, хочется разного</span>
+        <span class="chip" data-sc="bots:2,auto:1">Рутину терплю, если она приносит деньги</span>
+      </div>
+    </div>
+    <div class="q scored" data-key="t5" data-req="1">
+      <div class="q-label">Общение с клиентами для тебя: <span class="req">*</span></div>
+      <div class="chips stack" data-single="1">
+        <span class="chip" data-sc="bots:3,sites:1">Кайф, я люблю людей</span>
+        <span class="chip" data-sc="bots:1,auto:1,data:1">Нормально, если есть скрипт</span>
+        <span class="chip" data-sc="auto:2,data:2,content:1">Лучше поменьше</span>
+      </div>
+    </div>
+    <div class="q scored" data-key="t6" data-req="1">
+      <div class="q-label">Насколько уверенно ты с техникой? <span class="req">*</span></div>
+      <div class="chips stack" data-single="1">
+        <span class="chip" data-sc="auto:2,bots:1,sites:1,content:1,data:1" data-speed="2">Уверенно, новое осваиваю быстро</span>
+        <span class="chip" data-sc="sites:1,content:1,bots:1" data-speed="1">Средне: мессенджеры, браузер, документы</span>
+        <span class="chip" data-sc="" data-speed="0">Пока слабо, но готов учиться</span>
+      </div>
+    </div>
+    <div class="q scored" data-key="t7" data-req="1">
+      <div class="q-label">Что мотивирует сильнее? <span class="req">*</span></div>
+      <div class="chips stack" data-single="1">
+        <span class="chip" data-sc="sites:2,content:1">Быстрые первые деньги</span>
+        <span class="chip" data-sc="bots:2,auto:2">Стабильный доход каждый месяц</span>
+        <span class="chip" data-sc="data:1,auto:2">Большие чеки за крупные проекты</span>
+      </div>
+    </div>
+    <div class="q scored" data-key="t8" data-req="1">
+      <div class="q-label">Твой идеальный формат работы: <span class="req">*</span></div>
+      <div class="chips stack" data-single="1">
+        <span class="chip" data-sc="content:2,sites:2">Много небольших задач: быстро сдал и дальше</span>
+        <span class="chip" data-sc="bots:2,auto:2">Несколько постоянных клиентов на сопровождении</span>
+        <span class="chip" data-sc="data:2,auto:1">Один большой проект, погрузиться с головой</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 3 ============ -->
+  <section class="step" data-step="3">
+    <div class="pagehead"><span class="pnum">стр. 3 / 5</span></div>
+    <h2>Опыт и цели</h2>
+    <p class="pagesub">Эта страница помогает куратору собрать твой маршрут на разборе, а не гадать по аватарке.</p>
+
+    <div class="q" data-key="why_now" data-req="1">
+      <div class="q-label">Почему именно сейчас решил осваивать ИИ-профессию? Что стало толчком? <span class="req">*</span></div>
+      <textarea placeholder="Что произошло, что заставило искать выход…"></textarea>
+    </div>
+    <div class="q" data-key="tried">
+      <div class="q-label">Что уже пробовал, чтобы изменить доход? Почему не получилось?</div>
+      <textarea placeholder="Курсы, подработки, свои проекты…"></textarea>
+    </div>
+    <div class="q" data-key="mentored">
+      <div class="q-label">Проходил ли раньше обучение или наставничество?</div>
+      <div class="chips" data-single="1">
+        <span class="chip">Да, и это помогло</span><span class="chip">Да, но результата не было</span><span class="chip">Нет, это первый раз</span>
+      </div>
+    </div>
+    <div class="q" data-key="year_goal" data-req="1">
+      <div class="q-label">Сколько планируешь заработать ровно за год? <span class="req">*</span></div>
+      <div class="chips" data-single="1">
+        <span class="chip">до 500 тысяч</span><span class="chip">около 1 млн</span><span class="chip">около 2 млн</span><span class="chip">3 млн и больше</span>
+      </div>
+    </div>
+    <div class="q" data-key="dream_day">
+      <div class="q-label">Представь: ты уже ИИ-инженер, зарабатываешь 150к+ удалённо. Как изменится твой обычный день? Что сможешь себе позволить?</div>
+      <textarea placeholder="Опиши этот день…"></textarea>
+    </div>
+    <div class="q" data-key="reward">
+      <div class="q-label">Как порадуешь себя или близких, когда выйдешь на стабильные 250к в месяц?</div>
+      <textarea placeholder="Первое, что сделаешь…"></textarea>
+    </div>
+  </section>
+
+  <!-- ============ STEP 4 ============ -->
+  <section class="step" data-step="4">
+    <div class="pagehead"><span class="pnum">стр. 4 / 5</span></div>
+    <h2>Ресурсы и готовность</h2>
+    <p class="pagesub">От этой страницы зависит прогноз: как быстро ты сможешь выйти на первые деньги.</p>
+
+    <div class="q" data-key="hours" data-req="1">
+      <div class="q-label">Сколько времени в день готов уделять? <span class="req">*</span></div>
+      <div class="chips" data-single="1">
+        <span class="chip" data-speed="0">1–2 часа</span><span class="chip" data-speed="1">2–4 часа</span><span class="chip" data-speed="2">4 часа и больше</span>
+      </div>
+    </div>
+    <div class="q" data-key="circle">
+      <div class="q-label">Сколько в среднем зарабатывает твоё окружение?</div>
+      <div class="chips" data-single="1">
+        <span class="chip">до 50 тыс</span><span class="chip">50–100 тыс</span><span class="chip">100–200 тыс</span><span class="chip">больше 200 тыс</span>
+      </div>
+    </div>
+    <div class="q" data-key="saved">
+      <div class="q-label">Сколько удалось отложить за 2026 год? <span class="opt">// вопрос про финансовые привычки, не про богатство</span></div>
+      <div class="chips" data-single="1">
+        <span class="chip">пока ничего</span><span class="chip">до 50 тыс</span><span class="chip">50–200 тыс</span><span class="chip">больше 200 тыс</span>
+      </div>
+    </div>
+    <div class="q" data-key="invest" data-req="1">
+      <div class="q-label">Сколько ты готов вложить в навык, который принесёт от 2 000 000 ₽ за год? <span class="req">*</span></div>
+      <div class="chips" data-single="1">
+        <span class="chip">до 50 тыс</span><span class="chip">50–100 тыс</span><span class="chip">100–200 тыс</span><span class="chip">дело не в цене, если есть результат</span>
+      </div>
+    </div>
+    <div class="q" data-key="start_when" data-req="1">
+      <div class="q-label">Если обо всём договоримся, когда готов приступить? <span class="req">*</span></div>
+      <div class="chips" data-single="1">
+        <span class="chip" data-speed="2">Сразу после разбора</span><span class="chip" data-speed="1">В течение недели</span><span class="chip" data-speed="0">В течение месяца</span><span class="chip" data-speed="0">Пока просто смотрю</span>
+      </div>
+    </div>
+    <div class="q" data-key="missing">
+      <div class="q-label">Чего сейчас не хватает, чтобы прийти к результату? <span class="opt">// можно выбрать до двух</span></div>
+      <div class="chips" data-max="2">
+        <span class="chip">Знаний и системы</span><span class="chip">Поддержки и наставника</span><span class="chip">Уверенности в себе</span><span class="chip">Времени</span><span class="chip">Денег на старт</span>
+      </div>
+    </div>
+    <div class="q" data-key="limits">
+      <div class="q-label">Есть ли ограничения, которые могут повлиять на сотрудничество? <span class="opt">// аресты, банкротство</span></div>
+      <div class="chips" data-single="1">
+        <span class="chip">Нет</span><span class="chip">Есть, расскажу на разборе</span>
+      </div>
+    </div>
+    <div class="q" data-key="mood">
+      <div class="q-label">Как твоё состояние и настрой прямо сейчас? <span class="opt">// 1 значит на нуле, 5 рвусь в бой</span></div>
+      <div class="chips scale" data-single="1">
+        <span class="chip">1</span><span class="chip">2</span><span class="chip">3</span><span class="chip">4</span><span class="chip">5</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ STEP 5 ============ -->
+  <section class="step" data-step="5">
+    <div class="pagehead"><span class="pnum">стр. 5 / 5</span></div>
+    <h2>Последняя страница</h2>
+    <p class="pagesub">Пара слов про тест-драйв и контакты, чтобы куратор мог передать паспорт на разбор.</p>
+
+    <div class="q" data-key="td_score">
+      <div class="q-label">Насколько тест-драйв оправдал ожидания? <span class="opt">// от 1 до 10</span></div>
+      <div class="chips scale" data-single="1">
+        <span class="chip">1</span><span class="chip">2</span><span class="chip">3</span><span class="chip">4</span><span class="chip">5</span><span class="chip">6</span><span class="chip">7</span><span class="chip">8</span><span class="chip">9</span><span class="chip">10</span>
+      </div>
+    </div>
+    <div class="q" data-key="td_comfort">
+      <div class="q-label">Насколько комфортным было общение в процессе? <span class="opt">// от 1 до 5</span></div>
+      <div class="chips scale" data-single="1">
+        <span class="chip">1</span><span class="chip">2</span><span class="chip">3</span><span class="chip">4</span><span class="chip">5</span>
+      </div>
+    </div>
+    <div class="q" data-key="td_why">
+      <div class="q-label">Почему такие оценки?</div>
+      <textarea placeholder="Пара слов, можно честно…"></textarea>
+    </div>
+    <div class="q" data-key="if_nothing">
+      <div class="q-label">Что будет, если оставить всё как есть и ничего не менять?</div>
+      <textarea placeholder="Честный ответ самому себе…"></textarea>
+    </div>
+    <div class="grid2">
+      <div class="q" data-key="tg" data-req="1">
+        <div class="q-label">Твой ник в Telegram <span class="req">*</span></div>
+        <input type="text" placeholder="@username">
+      </div>
+      <div class="q" data-key="phone">
+        <div class="q-label">Телефон для связи</div>
+        <input type="tel" placeholder="+7 …">
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ RESULTS ============ -->
+<div id="results">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span>твой результат</div>
+    <h2 id="resTitle">Паспорт готов</h2>
+    <p class="pagesub">Вот твоя карта потенциала: на каких направлениях ИИ-услуг тебе будет проще и быстрее заработать.</p>
+
+    <div class="passport-card">
+      <div class="serial" id="serial">ПАСПОРТ ИИ-ИНЖЕНЕРА · СЕРИЯ ТД-26</div>
+      <div class="passport-meta" id="pmeta"></div>
+    </div>
+
+    <div class="radar-panel">
+      <svg class="radar-box" id="radar" viewBox="0 0 360 340"></svg>
+      <div class="radar-legend" id="radarLegend"></div>
+    </div>
+
+    <div class="verdict-intro">Синим выделены <b>два направления, где твой потенциал сейчас выше всего</b>. С них и стоит заходить в профессию: остальные подтянутся в работе, здесь никто ничего не «должен уметь заранее».</div>
+
+    <div id="verdictCards"></div>
+
+    <div class="speed" id="speedCards"></div>
+
+    <div class="cta">
+      <div class="cta-grid">
+        <div class="cta-text">
+          <h3 id="ctaTitle">Дальше: индивидуальный разбор</h3>
+          <p>Куратор уже видит твой паспорт. На разборе соберём личный маршрут: с какого направления стартовать, какие первые заказы брать и как выйти на цель, которую ты указал.</p>
+          <button class="btn" id="sendBtn">Передать паспорт на разбор →</button>
+        </div>
+        <div class="preview-card">
+          <div class="pv-label">после программы</div>
+          <svg viewBox="0 0 200 190">
+            <polygon id="pvGrid" points="" fill="none" stroke="rgba(249,248,243,.25)" stroke-width="1"/>
+            <polygon id="pvFull" points="" fill="rgba(68,96,196,.35)" stroke="#4460C4" stroke-width="2.5"/>
+          </svg>
+          <div class="pv-cap">все пять направлений прокачаны на программе ИИ-ИНЖЕНЕР</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="stickybar">
+  <div style="display:flex;flex-direction:column;gap:5px;flex:1">
+    <div class="track"><div class="fill" id="progressFill"></div></div>
+    <span class="stepnote" id="stepNote">страница 1 из 5</span>
+  </div>
+  <button class="btn ghost" id="backBtn" style="display:none">← Назад</button>
+  <button class="btn" id="nextBtn">Дальше →</button>
+</div>
+
+<footer>ИИ-ИНЖЕНЕР · тест-драйв · паспорт потенциала</footer>
+
+<script>
+const AXES = [
+  { key:'bots', title:'Чат-боты и ИИ-продавцы', angle:-90,
+    why:'Твоя сильная сторона: общение и диалоги. Чат-бот это и есть упакованная переписка: ты собираешь диалог, который продаёт без тебя, и бизнес платит за это охотнее всего.',
+    money:'простой бот 15–30 тыс ₽ · бот-воронка как на тест-драйве 40–90 тыс ₽ · сопровождение от 30–40 тыс ₽/мес',
+    start:'Первого бота соберёшь по инструкции за один вечер: на программе это одна из первых практик.',
+    curriculum:['Сборка ботов на конструкторе','ИИ-продавцы в Telegram и MAX','Диалоги, которые продают','Сопровождение клиентов'] },
+  { key:'auto', title:'Автоматизации процессов', angle:-18,
+    why:'Тебе заходит системность: настроить один раз так, чтобы дальше крутилось само. Это самые «клейкие» услуги: клиент, которому автоматизировали рутину, остаётся на месяцы.',
+    money:'разовые задачи 10–15 тыс ₽ · сопровождение на постоянку 40–90 тыс ₽/мес',
+    start:'Начнёшь со связок из готовых блоков: собираются как конструктор, код пишет нейросеть.',
+    curriculum:['Связки сервисов и нейросетей','Автоматизация заявок и записи','Постоянные проекты на сопровождении'] },
+  { key:'content', title:'ИИ-контент', angle:54,
+    why:'У тебя творческая жилка и вкус. ИИ-контент это конвейер: посты, картинки, видео и тексты для бизнеса, где нейросеть делает черновую работу, а ты отвечаешь за результат.',
+    money:'задачи от 5 тыс ₽ · 30 задач в месяц это уже 150 тыс ₽',
+    start:'Самый быстрый вход: первые задачи можно брать уже на первой неделе.',
+    curriculum:['Генерация картинок и видео','Контент-конвейер для бизнеса','Продажа контент-пакетов'] },
+  { key:'sites', title:'Сайты и лендинги', angle:126,
+    why:'Ты любишь видимый результат здесь и сейчас. Страница для бизнеса самая наглядная из услуг: сделал за вечер, показал владельцу, получил деньги. Ровно это ты делал в практикуме.',
+    money:'первые задачи 15–40 тыс ₽ · у наших учеников уходят с 3-й недели',
+    start:'Ты уже собрал первую страницу на практикуме. 3–4 таких за вечер это готовое портфолио.',
+    curriculum:['Страницы и лендинги через нейросеть','Упаковка бизнеса под ключ','Заход к владельцу с готовой работой'] },
+  { key:'data', title:'Аналитика и данные', angle:198,
+    why:'Ты дружишь с цифрами и точностью. Таких людей мало, а бизнесу они нужны позарез: отчёты, таблицы, парсинг и порядок в данных приносят самые серьёзные чеки.',
+    money:'в комплексе с автоматизацией чеки до 300 тыс ₽ у малого бизнеса и до 500 тыс ₽ у онлайн-школ',
+    start:'Начнёшь с простого: парсинг и таблицы по готовым инструкциям, как в практикуме.',
+    curriculum:['Парсинг и сбор данных','ИИ-аналитика и отчёты','Комплексные проекты с большим чеком'] },
+];
+const AXIS_MAX = { bots:16, auto:16, content:13, sites:14, data:14 };
+
+const steps = [...document.querySelectorAll('.step')];
+let cur = 0;
+const nextBtn = document.getElementById('nextBtn');
+const backBtn = document.getElementById('backBtn');
+const fill = document.getElementById('progressFill');
+const stepNote = document.getElementById('stepNote');
+const stickybar = document.querySelector('.stickybar');
+
+function showStep(i){
+  steps.forEach((s,si)=>s.classList.toggle('active', si===i));
+  cur = i;
+  fill.style.width = ((i)/steps.length*100 + 10) + '%';
+  stepNote.textContent = 'страница ' + (i+1) + ' из ' + steps.length;
+  backBtn.style.display = i>0 ? '' : 'none';
+  nextBtn.textContent = i===steps.length-1 ? 'Собрать мой паспорт →' : 'Дальше →';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+document.querySelectorAll('.chips').forEach(group=>{
+  const single = group.dataset.single === '1';
+  const max = parseInt(group.dataset.max||'0',10);
+  group.querySelectorAll('.chip').forEach(ch=>{
+    ch.addEventListener('click', ()=>{
+      if(single){
+        group.querySelectorAll('.chip').forEach(c=>c.classList.remove('sel'));
+        ch.classList.add('sel');
+      } else {
+        if(!ch.classList.contains('sel') && max && group.querySelectorAll('.chip.sel').length>=max) return;
+        ch.classList.toggle('sel');
+      }
+      ch.closest('.q').classList.remove('err');
+    });
+  });
+});
+document.querySelectorAll('.q input, .q textarea').forEach(el=>{
+  el.addEventListener('input', ()=> el.closest('.q').classList.remove('err'));
+});
+
+function qValue(q){
+  const inp = q.querySelector('input,textarea');
+  if(inp) return inp.value.trim();
+  const sels = [...q.querySelectorAll('.chip.sel')].map(c=>c.textContent.trim());
+  return sels.join(' + ');
+}
+function validateStep(i){
+  let ok = true;
+  steps[i].querySelectorAll('.q[data-req="1"]').forEach(q=>{
+    if(!qValue(q)){ q.classList.add('err'); ok = false; }
+  });
+  if(!ok){
+    const firstErr = steps[i].querySelector('.q.err');
+    if(firstErr) firstErr.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+  return ok;
+}
+
+nextBtn.addEventListener('click', ()=>{
+  if(!validateStep(cur)) return;
+  if(cur < steps.length-1){ showStep(cur+1); }
+  else buildPassport();
+});
+backBtn.addEventListener('click', ()=>{ if(cur>0) showStep(cur-1); });
+
+function polar(cx, cy, r, angleDeg){
+  const a = (angleDeg - 90) * Math.PI/180;
+  return [cx + r*Math.cos(a), cy + r*Math.sin(a)];
+}
+
+function collectAnswers(){
+  const data = {};
+  document.querySelectorAll('.q[data-key]').forEach(q=>{ data[q.dataset.key] = qValue(q); });
+  return data;
+}
+
+function buildPassport(){
+  // scores
+  const score = {bots:0, auto:0, content:0, sites:0, data:0};
+  let speedPts = 0, speedMax = 0;
+  document.querySelectorAll('.chip.sel').forEach(ch=>{
+    (ch.dataset.sc||'').split(',').forEach(pair=>{
+      if(!pair) return;
+      const [k,v] = pair.split(':');
+      if(score[k]!==undefined) score[k]+=parseInt(v,10);
+    });
+    if(ch.dataset.speed!==undefined) speedPts += parseInt(ch.dataset.speed,10);
+  });
+  document.querySelectorAll('.chip[data-speed]').forEach(ch=>{}); // speedMax fixed below
+  speedMax = 6; // t6(2) + hours(2) + start_when(2)
+
+  const levels = AXES.map(a=>{
+    const raw = Math.min(1, score[a.key]/AXIS_MAX[a.key]);
+    const pct = 0.22 + raw*0.78;
+    return {...a, raw, pct};
+  });
+  const ranked = [...levels].sort((x,y)=>y.raw-x.raw);
+  const topKeys = new Set([ranked[0].key, ranked[1].key]);
+
+  const data = collectAnswers();
+
+  // passport meta
+  const num = String(Math.floor(1000 + (score.bots*7+score.auto*13+score.content*17+score.sites*23+score.data*29)%9000));
+  document.getElementById('serial').textContent = 'ПАСПОРТ ИИ-ИНЖЕНЕРА · СЕРИЯ ТД-26 · № ' + num;
+  document.getElementById('pmeta').innerHTML = [
+    ['владелец', data.name || '—'],
+    ['возраст', data.age || '—'],
+    ['город', data.city || '—'],
+    ['цель на год', data.year_goal || '—'],
+    ['старт', data.start_when || '—'],
+  ].map(([k,v])=>`<span><span class="k">${k}</span><b>${v}</b></span>`).join('');
+  document.getElementById('resTitle').textContent = (data.name ? data.name + ', твой' : 'Твой') + ' паспорт готов';
+
+  // radar
+  const cx=180, cy=168, R=118;
+  let svg='';
+  for(let ring=1; ring<=4; ring++){
+    const r=R*ring/4;
+    const pts=levels.map(l=>polar(cx,cy,r,l.angle).join(',')).join(' ');
+    svg+=`<polygon points="${pts}" fill="none" stroke="${ring===4?'#111827':'rgba(17,24,39,.15)'}" stroke-width="${ring===4?1.4:1}"/>`;
+  }
+  levels.forEach(l=>{
+    const [x,y]=polar(cx,cy,R,l.angle);
+    svg+=`<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(17,24,39,.15)" stroke-width="1"/>`;
+  });
+  const dataPts=levels.map(l=>polar(cx,cy,R*l.pct,l.angle).join(',')).join(' ');
+  svg+=`<polygon points="${dataPts}" fill="rgba(68,96,196,.22)" stroke="#4460C4" stroke-width="2.5"/>`;
+  levels.forEach(l=>{
+    const [x,y]=polar(cx,cy,R*l.pct,l.angle);
+    svg+=`<circle cx="${x}" cy="${y}" r="4.5" fill="${topKeys.has(l.key)?'#4460C4':'#F9F8F3'}" stroke="#111827" stroke-width="1.2"/>`;
+  });
+  levels.forEach((l,i)=>{
+    const [x,y]=polar(cx,cy,R+26,l.angle);
+    svg+=`<circle cx="${x}" cy="${y}" r="12" fill="${topKeys.has(l.key)?'#4460C4':'#111827'}"/>`;
+    svg+=`<text x="${x}" y="${y+4}" text-anchor="middle" font-family="Unbounded" font-weight="700" font-size="11" fill="#F9F8F3">${i+1}</text>`;
+  });
+  document.getElementById('radar').innerHTML = svg;
+
+  document.getElementById('radarLegend').innerHTML = levels.map((l,i)=>`
+    <div class="rl ${topKeys.has(l.key)?'top':''}">
+      <span class="b">${i+1}</span>
+      <span class="tx"><span class="nm">${l.title}</span><span class="gl">потенциал ${Math.round(l.pct*100)}%</span></span>
+      <span class="sc">${topKeys.has(l.key)?'ТОП':''}</span>
+    </div>`).join('');
+
+  // verdict cards: top-2 detailed, rest short
+  const cardsEl = document.getElementById('verdictCards');
+  cardsEl.innerHTML =
+    ranked.slice(0,2).map(l=>`
+      <div class="vcard top">
+        <div class="vh"><span class="vtag">Твоё направление</span><span class="vname">${l.title}</span></div>
+        <p>${l.why}</p>
+        <div class="vmoney">${l.money}</div>
+        <p>${l.start}</p>
+        <div class="curriculum">
+          <div class="curriculum-label">Что это закрывает на программе</div>
+          <div class="curriculum-grid">${l.curriculum.map(c=>`<div class="curriculum-item">${c}</div>`).join('')}</div>
+          <div class="curriculum-note">Всё это разбирается по шагам на программе <b>ИИ-ИНЖЕНЕР</b>: с куратором и первыми заказами прямо во время обучения.</div>
+        </div>
+      </div>`).join('')
+    + `<div class="vcard rest">
+        <div class="vh"><span class="vtag">Остальные</span><span class="vname">${ranked.slice(2).map(l=>l.title).join(' · ')}</span></div>
+        <p>Эти направления пока не твой конёк, и это нормально: на старте они и не нужны. Они подтянутся сами, когда появятся первые клиенты и реальные задачи.</p>
+      </div>`;
+
+  // speed forecast
+  const speed = speedPts / speedMax;
+  let when, whenD;
+  if(speed >= .66){ when='~3 недели'; whenD='При твоём темпе первые задачи на 15–40 тысяч реальны уже с третьей недели, как у большинства учеников, которые заходят плотно.'; }
+  else if(speed >= .33){ when='4–5 недель'; whenD='С твоим графиком первые деньги придут чуть позже среднего, но траектория та же: практика, портфолио, первый заказ.'; }
+  else { when='6–8 недель'; whenD='Времени пока немного, поэтому идём аккуратнее: короткие практики и первые небольшие заказы без перегруза.'; }
+  const goal = data.year_goal || 'твоей цели';
+  document.getElementById('speedCards').innerHTML = `
+    <div class="sc-card"><div class="sc-k">прогноз первых денег</div><div class="sc-v">${when}</div><div class="sc-d">${whenD}</div></div>
+    <div class="sc-card"><div class="sc-k">цель на год</div><div class="sc-v">${goal}</div><div class="sc-d">На разборе посчитаем маршрут под эту цифру: сколько и каких заказов в месяц её закрывают.</div></div>`;
+
+  // preview hexagon -> pentagon full
+  const pcx=100, pcy=95, pR=75;
+  const gridPts = AXES.map(a=>polar(pcx,pcy,pR,a.angle).join(',')).join(' ');
+  document.getElementById('pvGrid').setAttribute('points', gridPts);
+  document.getElementById('pvFull').setAttribute('points', gridPts);
+
+  // stash summary for the bot / curator
+  const summary = {answers:data, scores:score, top:[ranked[0].title, ranked[1].title], forecast:when};
+  try{ localStorage.setItem('ai_passport', JSON.stringify(summary)); }catch(e){}
+  window.AI_PASSPORT = summary;
+
+  stickybar.style.display='none';
+  document.getElementById('results').classList.add('is-visible');
+  document.querySelectorAll('.step')[cur].classList.remove('active');
+  document.querySelector('.wrap .hero').scrollIntoView();
+  setTimeout(()=>document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'}), 80);
+}
+
+document.getElementById('sendBtn').addEventListener('click', ()=>{
+  // TODO: сюда вставить отправку в бота (webhook / salebot / tg)
+  const b = document.getElementById('sendBtn');
+  b.textContent = 'Паспорт передан ✓ Куратор напишет в Telegram';
+  b.style.background = '#2E7D4F';
+});
+
+showStep(0);
+</script>
+</body>
+</html>
