@@ -40,18 +40,18 @@ a{color:inherit}
 
 .eyebrow{
   font-family:var(--display);font-weight:500;font-size:12px;letter-spacing:.06em;text-transform:uppercase;
-  display:inline-flex;align-items:center;gap:9px;color:var(--muted);margin-bottom:18px;
+  display:inline-flex;align-items:center;gap:9px;color:var(--muted);margin-bottom:26px;
 }
 .eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--blue);display:inline-block}
 
-.hero{position:relative;padding:10px 0 28px;border-bottom:1px solid var(--line);margin-bottom:30px}
+.hero{position:relative;padding:22px 0 40px;border-bottom:1px solid var(--line);margin-bottom:38px}
 h1{
-  font-family:var(--display);font-weight:800;font-size:clamp(27px,5vw,40px);line-height:1.12;
-  letter-spacing:-.01em;margin-bottom:14px;max-width:600px;
+  font-family:var(--display);font-weight:800;font-size:clamp(25px,4.6vw,38px);line-height:1.18;
+  letter-spacing:-.01em;margin-bottom:22px;max-width:640px;
 }
-h1 em{font-style:normal;color:#fff;background:var(--blue);padding:0 10px;border-radius:8px;box-decoration-break:clone;-webkit-box-decoration-break:clone;}
-.hero p{font-size:15.5px;color:#B9BCC7;max-width:560px;margin-bottom:6px}
-.hero .rule{font-size:13.5px;color:var(--muted);font-family:var(--mono)}
+h1 em{font-style:normal;color:#7D95E6;white-space:nowrap}
+.hero p{font-size:15.5px;color:#B9BCC7;max-width:560px;margin-bottom:14px}
+.hero .rule{font-size:13px;color:var(--muted);font-family:var(--mono);margin-top:2px}
 
 .pagehead{display:flex;align-items:baseline;gap:12px;margin:6px 0 6px}
 .pagehead .pnum{font-family:var(--mono);font-size:12px;color:var(--blue);letter-spacing:.08em}
@@ -111,6 +111,23 @@ textarea{min-height:84px;resize:vertical}
 .btn:hover{background:var(--blue-deep);transform:translateY(-1px)}
 .btn.ghost{background:transparent;border:1.5px solid var(--line);color:#D9DBE1;font-size:12.5px;padding:12px 16px}
 .btn.ghost:hover{border-color:var(--blue);color:#fff}
+
+
+.example{margin-top:30px}
+.ex-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.ex-card{
+  background:var(--paper);color:var(--ink);border-radius:16px;padding:16px 18px;
+  display:flex;align-items:center;gap:16px;max-width:560px;
+}
+.ex-radar{width:158px;flex:none}
+.ex-side{display:flex;flex-direction:column;gap:8px;min-width:0}
+.ex-row{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;line-height:1.3}
+.ex-row b{font-family:var(--display);font-size:10.5px;color:var(--blue-deep);letter-spacing:.04em}
+.ex-row .ex-dot{width:9px;height:9px;border-radius:50%;background:var(--blue);flex:none}
+.ex-row .ex-dot.off{background:rgba(17,24,39,.25)}
+.ex-row:not(.top){font-weight:600;color:#4A4C55;font-size:12.5px}
+.ex-note{font-size:12px;color:var(--muted-paper);line-height:1.45;margin-top:2px}
+@media(max-width:520px){.ex-card{flex-direction:column;align-items:flex-start}.ex-radar{width:150px;margin:0 auto}}
 
 /* ---------- RESULTS ---------- */
 #results{display:none;background:var(--paper);color:var(--ink);position:relative;z-index:1;margin-top:34px}
@@ -200,9 +217,23 @@ footer{position:relative;z-index:1;text-align:center;font-family:var(--mono);fon
 <div class="wrap">
   <div class="hero">
     <div class="eyebrow"><span class="dot"></span>ИИ-ИНЖЕНЕР · диагностика потенциала</div>
-    <h1>Паспорт <em>ИИ-инженера</em></h1>
+    <h1>Паспорт для освоения профессии <em>«ИИ-инженер»</em></h1>
     <p>5 коротких страниц. Ответы соберутся в твой личный паспорт: в каких направлениях ИИ-услуг у тебя больше всего потенциала и где тебе будет проще и быстрее заработать.</p>
+    <p>После заполнения система соберёт твой профиль, а куратор на индивидуальном разборе даст конкретные рекомендации: с чего стартовать и какие первые заказы брать.</p>
     <p class="rule">// заполняй честно: паспорт увидишь только ты и куратор разбора</p>
+
+    <div class="example">
+      <div class="ex-label">так будет выглядеть твой паспорт</div>
+      <div class="ex-card">
+        <svg viewBox="0 0 220 200" class="ex-radar"><polygon points="91.0,100.0 104.1,81.9 125.4,88.8 125.4,111.2 104.1,118.1" fill="none" stroke="rgba(17,24,39,.15)" stroke-width="1"/><polygon points="72.0,100.0 98.3,63.9 140.7,77.7 140.7,122.3 98.3,136.1" fill="none" stroke="rgba(17,24,39,.15)" stroke-width="1"/><polygon points="53.0,100.0 92.4,45.8 156.1,66.5 156.1,133.5 92.4,154.2" fill="none" stroke="rgba(17,24,39,.15)" stroke-width="1"/><polygon points="34.0,100.0 86.5,27.7 171.5,55.3 171.5,144.7 86.5,172.3" fill="none" stroke="#111827" stroke-width="1.4"/><line x1="110" y1="100" x2="34.0" y2="100.0" stroke="rgba(17,24,39,.15)" stroke-width="1"/><line x1="110" y1="100" x2="86.5" y2="27.7" stroke="rgba(17,24,39,.15)" stroke-width="1"/><line x1="110" y1="100" x2="171.5" y2="55.3" stroke="rgba(17,24,39,.15)" stroke-width="1"/><line x1="110" y1="100" x2="171.5" y2="144.7" stroke="rgba(17,24,39,.15)" stroke-width="1"/><line x1="110" y1="100" x2="86.5" y2="172.3" stroke="rgba(17,24,39,.15)" stroke-width="1"/><polygon points="37.8,100.0 95.9,56.6 134.6,82.1 159.2,135.7 99.4,132.5" fill="rgba(68,96,196,.22)" stroke="#4460C4" stroke-width="2.5"/><circle cx="37.8" cy="100.0" r="4" fill="#4460C4" stroke="#111827" stroke-width="1.2"/><circle cx="95.9" cy="56.6" r="4" fill="#F9F8F3" stroke="#111827" stroke-width="1.2"/><circle cx="134.6" cy="82.1" r="4" fill="#F9F8F3" stroke="#111827" stroke-width="1.2"/><circle cx="159.2" cy="135.7" r="4" fill="#4460C4" stroke="#111827" stroke-width="1.2"/><circle cx="99.4" cy="132.5" r="4" fill="#F9F8F3" stroke="#111827" stroke-width="1.2"/></svg>
+        <div class="ex-side">
+          <div class="ex-row top"><span class="ex-dot"></span>Чат-боты и ИИ-продавцы <b>ТОП</b></div>
+          <div class="ex-row top"><span class="ex-dot"></span>Сайты и лендинги <b>ТОП</b></div>
+          <div class="ex-row"><span class="ex-dot off"></span>Автоматизации · ИИ-контент · Аналитика</div>
+          <div class="ex-note">+ прогноз первых денег, сильные стороны и план под твою цель на год</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ============ STEP 1 ============ -->
