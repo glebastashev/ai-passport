@@ -16,45 +16,62 @@ function sheet_(name) {
   return ss.getSheetByName(name) || ss.insertSheet(name);
 }
 
+/** аватар держим в кэше, а не в таблице: иначе каждый опрос тащит мегабайты */
 function avatar_(userId) {
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get('ava_' + userId);
+  if (hit !== null) return hit;
+  var photo = '';
   try {
     var ph = api_('getUserProfilePhotos', { user_id: userId, limit: 1 });
-    if (!ph.ok || !ph.result.total_count) return '';
-    var sizes = ph.result.photos[0];
-    var fileId = sizes[Math.min(1, sizes.length - 1)].file_id;
-    var f = api_('getFile', { file_id: fileId });
-    if (!f.ok) return '';
-    var blob = UrlFetchApp.fetch('https://api.telegram.org/file/bot' + BOT_TOKEN + '/' + f.result.file_path).getBlob();
-    return 'data:' + blob.getContentType() + ';base64,' + Utilities.base64Encode(blob.getBytes());
+    if (ph.ok && ph.result.total_count) {
+      var sizes = ph.result.photos[0];
+      var f = api_('getFile', { file_id: sizes[Math.min(1, sizes.length - 1)].file_id });
+      if (f.ok) {
+        var blob = UrlFetchApp.fetch('https://api.telegram.org/file/bot' + BOT_TOKEN + '/' + f.result.file_path).getBlob();
+        photo = 'data:image/jpeg;base64,' + Utilities.base64Encode(blob.getBytes());
+      }
+    }
   } catch (err) {
-    return '';
+    photo = '';
   }
+  try { cache.put('ava_' + userId, photo, 21600); } catch (err) {}
+  return photo;
 }
 
-/** забираем новые нажатия Start и пишем их в лист «Входы» */
+/** забираем новые нажатия Start; замок не даёт двум опросам обработать одно и то же */
 function pull_() {
-  var props = PropertiesService.getScriptProperties();
-  var offset = Number(props.getProperty('offset') || 0);
-  var r = api_('getUpdates', { offset: offset, timeout: 0, allowed_updates: ['message'] });
-  if (!r.ok || !r.result.length) return;
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(15000)) return;
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var offset = Number(props.getProperty('offset') || 0);
+    var r = api_('getUpdates', { offset: offset, timeout: 0, allowed_updates: ['message'] });
+    if (!r.ok || !r.result.length) return;
 
-  var sh = sheet_(AUTH_NAME);
-  r.result.forEach(function (upd) {
-    offset = Math.max(offset, upd.update_id + 1);
-    var msg = upd.message;
-    if (!msg || !msg.text || msg.text.indexOf('/start') !== 0) return;
-    var code = msg.text.split(' ')[1] || '';
-    var u = msg.from;
-    if (code) {
-      sh.appendRow([new Date(), code, u.id, u.username || '',
-        [u.first_name, u.last_name].filter(String).join(' '), '']);
-    }
-    api_('sendMessage', {
-      chat_id: msg.chat.id,
-      text: 'Готово, возвращайся на страницу паспорта: анкета уже открылась.'
+    var sh = sheet_(AUTH_NAME);
+    var rows = [];
+    r.result.forEach(function (upd) {
+      offset = Math.max(offset, upd.update_id + 1);
+      var msg = upd.message;
+      if (!msg || !msg.text || msg.text.indexOf('/start') !== 0) return;
+      var code = msg.text.split(' ')[1] || '';
+      var u = msg.from;
+      if (code) rows.push([new Date(), code, u.id, u.username || '',
+        [u.first_name, u.last_name].filter(String).join(' ')]);
+      api_('sendMessage', {
+        chat_id: msg.chat.id,
+        text: 'Готово, возвращайся на страницу паспорта: анкета уже открылась.'
+      });
     });
-  });
-  props.setProperty('offset', String(offset));
+    props.setProperty('offset', String(offset));
+    if (rows.length) {
+      sh.getRange(sh.getLastRow() + 1, 1, rows.length, 5).setValues(rows);
+      SpreadsheetApp.flush();
+    }
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function doPost(e) {
@@ -70,24 +87,24 @@ function doPost(e) {
 
 function doGet(e) {
   var p = (e && e.parameter) ? e.parameter : {};
+  var cbName = p.callback || 'cb';
 
   if (p.check) {
-    pull_();                                   // сначала забираем свежие нажатия
+    pull_();
     var sh = sheet_(AUTH_NAME);
-    var rows = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues() : [];
-    for (var i = rows.length - 1; i >= 0; i--) {
-      if (String(rows[i][1]) === String(p.check)) {
-        var photo = rows[i][5];
-        if (!photo) {
-          photo = avatar_(rows[i][2]);
-          if (photo) sh.getRange(i + 2, 6).setValue(photo);
+    var last = sh.getLastRow();
+    var out = { ok: false };
+    if (last > 1) {
+      var codes = sh.getRange(2, 2, last - 1, 1).getValues();   // читаем только колонку с кодом
+      for (var i = codes.length - 1; i >= 0; i--) {
+        if (String(codes[i][0]) === String(p.check)) {
+          var row = sh.getRange(i + 2, 1, 1, 5).getValues()[0];
+          out = { ok: true, id: row[2], username: row[3], name: row[4], photo: avatar_(row[2]) };
+          break;
         }
-        var out = { ok: true, id: rows[i][2], username: rows[i][3], name: rows[i][4], photo: photo };
-        return ContentService.createTextOutput((p.callback || 'cb') + '(' + JSON.stringify(out) + ')')
-          .setMimeType(ContentService.MimeType.JAVASCRIPT);
       }
     }
-    return ContentService.createTextOutput((p.callback || 'cb') + '({"ok":false})')
+    return ContentService.createTextOutput(cbName + '(' + JSON.stringify(out) + ')')
       .setMimeType(ContentService.MimeType.JAVASCRIPT);
   }
 
