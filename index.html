@@ -743,11 +743,26 @@ function tgStartViaBot(){
 
 document.addEventListener('DOMContentLoaded', ()=>{
   const box = document.getElementById('tgbox');
-  // вход только через бота: человек жмёт Start, номер телефона не спрашиваем
-  if(!TG_BOT || !SHEET_WEBHOOK){ box.style.display='none'; return; }
-  document.getElementById('tgWidget').innerHTML =
-    '<button class="btn" type="button" id="tgBotBtn">Войти через Telegram →</button>';
-  document.getElementById('tgBotBtn').addEventListener('click', tgStartViaBot);
+  if(!TG_BOT){ box.style.display='none'; return; }
+  const w = document.getElementById('tgWidget');
+  w.innerHTML = '<button class="btn" type="button" id="tgBotBtn">Войти через Telegram →</button>';
+  document.getElementById('tgBotBtn').addEventListener('click', ()=>{
+    if(SHEET_WEBHOOK){ tgStartViaBot(); return; }
+    // приёмник ещё не подключён: открываем бота и просим ник вручную
+    window.open('https://t.me/' + TG_BOT, '_blank');
+    document.getElementById('tgHint').innerHTML =
+      'Впиши свой ник в Telegram, чтобы куратор нашёл тебя:' +
+      '<input type="text" id="tgManual" placeholder="@username" ' +
+      'style="margin-top:8px;width:100%;max-width:280px;border-radius:0;' +
+      'border:1.5px solid rgba(16,22,36,.16);padding:9px 12px;font-family:var(--mono);font-size:13.5px">';
+    const inp = document.getElementById('tgManual');
+    inp.addEventListener('input', ()=>{
+      const v = inp.value.trim().replace(/^@/,'');
+      window.__tg = Object.assign(window.__tg||{}, {username:v});
+      box.classList.toggle('done', v.length > 2);
+    });
+    inp.focus();
+  });
 });
 
 const AXES = [
