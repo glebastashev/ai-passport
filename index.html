@@ -200,6 +200,41 @@ textarea{min-height:84px;resize:vertical}
 .speed .sc-v{font-family:var(--display);font-weight:700;font-size:19px;color:var(--blue-deep);line-height:1.2}
 .speed .sc-d{font-size:12.5px;color:#4A4C55;margin-top:6px}
 
+.prog{border:1px solid var(--line-paper);border-radius:18px;background:#fff;padding:22px 20px;margin:22px 0 8px}
+.prog-kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-paper);margin-bottom:8px}
+.prog h3{font-family:var(--display);font-weight:700;font-size:clamp(17px,3vw,21px);line-height:1.25;margin-bottom:8px}
+.prog-sub{font-size:13.5px;color:#4A4C55;margin-bottom:12px}
+.prog-facts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+.prog-fact{font-family:var(--mono);font-size:11.5px;border:1px solid var(--line-paper);border-radius:99px;padding:5px 11px;color:var(--blue-deep)}
+.gapblock{border-top:1px dashed var(--line-paper);padding-top:16px;margin-top:16px}
+.gap-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-paper);margin-bottom:12px}
+.gap{margin-bottom:14px}
+.gap-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:5px}
+.gap-nm{font-weight:800;font-size:13.5px}
+.gap-val{font-family:var(--display);font-weight:700;font-size:12px;color:var(--blue-deep);white-space:nowrap}
+.gap-val i{font-style:normal;color:var(--muted-paper);font-weight:500}
+.gap-bar{display:flex;height:12px;border-radius:99px;overflow:hidden;background:rgba(19,26,43,.07)}
+.gap-now{background:var(--blue)}
+.gap-add{background:var(--lime)}
+.gap-mod{font-size:12.5px;color:#4A4C55;margin-top:6px}
+.gap-mod b{color:var(--blue-deep);font-weight:800}
+.gap.weak .gap-nm::after{content:'пробел';font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--blue-deep);background:var(--lime);border-radius:99px;padding:2px 7px;margin-left:8px;vertical-align:2px}
+.gain{margin-bottom:13px}
+.gain-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:5px}
+.gain-nm{font-weight:800;font-size:13.5px}
+.gain-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:99px;padding:3px 8px;background:rgba(19,26,43,.07);color:#4A4C55;white-space:nowrap}
+.gain.new .gain-tag{background:var(--lime);color:var(--blue-deep)}
+.gain-bar{height:12px;border-radius:99px;background:rgba(19,26,43,.07);overflow:hidden}
+.gain-fill{height:100%;background:var(--blue)}
+.gain.new .gain-fill{background:linear-gradient(90deg,var(--blue),var(--lime))}
+.gain-money{font-family:var(--mono);font-size:12px;color:var(--blue-deep);margin-top:6px}
+.gain-note{font-size:12.5px;color:#4A4C55;margin-top:14px}
+.softfix{border-top:1px dashed var(--line-paper);padding-top:16px;margin-top:16px}
+.softfix .sf{font-size:13px;color:#3A3C45;margin-bottom:8px;padding-left:14px;position:relative}
+.softfix .sf::before{content:'';position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--lime)}
+.softfix .sf b{color:var(--blue-deep)}
 .cta{background:var(--ink);color:var(--paper);border-radius:20px;padding:26px 22px;margin:26px 0 10px;position:relative;overflow:hidden}
 .cta::before{
   content:'';position:absolute;inset:0;pointer-events:none;opacity:.14;
@@ -680,6 +715,29 @@ body.locked .gate{display:block}
 
     <div class="speed" id="speedCards"></div>
 
+    <div class="prog" id="progBlock">
+      <div class="prog-kicker">программа AI-ИНЖЕНЕР</div>
+      <h3>Чем программа закрывает твои пробелы</h3>
+      <p class="prog-sub">9 модулей и 64 урока за 12 недель. Каждый модуль это законченная услуга, которую можно продавать: сайт, AI-продавец, контент-система, автоматизация на n8n, свой SaaS, поиск клиентов и запуск практики. К концу обучения всё это лежит у тебя в портфолио готовыми проектами.</p>
+      <div class="prog-facts">
+        <span class="prog-fact">9 модулей</span><span class="prog-fact">64 урока</span>
+        <span class="prog-fact">12 недель</span><span class="prog-fact">куратор и первые заказы по ходу</span>
+      </div>
+
+      <div class="gapblock">
+        <div class="gap-label">Диаграмма 1 · где у тебя пробел и какой модуль его закрывает</div>
+        <div id="gapGrid"></div>
+      </div>
+
+      <div class="gapblock">
+        <div class="gap-label">Диаграмма 2 · что открывает это усиление</div>
+        <div id="gainGrid"></div>
+        <div class="gain-note" id="gainNote"></div>
+      </div>
+
+      <div class="softfix" id="softFix"></div>
+    </div>
+
     <div class="cta">
       <div class="cta-grid">
         <div class="cta-text">
@@ -1099,6 +1157,69 @@ function buildPassport(){
   document.getElementById('speedCards').innerHTML = `
     <div class="sc-card"><div class="sc-k">прогноз первых денег</div><div class="sc-v">${when}</div><div class="sc-d">${whenD}</div></div>
     <div class="sc-card"><div class="sc-k">цель на год</div><div class="sc-v">${goal}</div><div class="sc-d">На разборе посчитаем маршрут под эту цифру: сколько и каких заказов в месяц её закрывают.</div></div>`;
+
+  // ---- программа: пробелы, модули и что даёт усиление ----
+  const PROG = {
+    sites:  {mod:'Модуль 2', nm:'Коммерческие сайты на нейросетях', n:12,
+             gives:'От диагностики клиента до сборки адаптивной страницы и передачи проекта.'},
+    bots:   {mod:'Модуль 3', nm:'AI-продавцы и чат-боты', n:12,
+             gives:'Архитектура диалога, база знаний, работа с возражениями и передача заявки менеджеру.'},
+    content:{mod:'Модуль 4', nm:'AI-контент-система для бизнеса', n:6,
+             gives:'Карта смыслов, тексты и картинки нейросетью, одна идея разворачивается в несколько форматов.'},
+    auto:   {mod:'Модуль 6', nm:'Автоматизация процессов на n8n', n:7,
+             gives:'Связки сервисов через API и вебхуки, ветвления, обработка ошибок, передача клиенту.'},
+    data:   {mod:'Модуль 5', nm:'Telegram Lead Scraper и квалификация лидов', n:6,
+             gives:'Сбор данных из чатов, отбор нужных контактов и выгрузки, которые читает владелец бизнеса.'},
+  };
+  const gaps = [...levels].sort((a,b)=>a.pts-b.pts);
+  document.getElementById('gapGrid').innerHTML = gaps.map(l=>{
+    const pr = PROG[l.key];
+    const after = Math.min(95, Math.max(l.pts + 28, 82));
+    const add = Math.max(0, after - l.pts);
+    const weak = !topKeys.has(l.key);
+    return `<div class="gap ${weak?'weak':''}">
+      <div class="gap-top"><span class="gap-nm">${l.title}</span>
+        <span class="gap-val">${l.pts} <i>→</i> ${after}</span></div>
+      <div class="gap-bar"><div class="gap-now" style="width:${l.pts}%"></div><div class="gap-add" style="width:${add}%"></div></div>
+      <div class="gap-mod"><b>${pr.mod} · ${pr.nm}</b>, ${pr.n} уроков. ${pr.gives}</div>
+    </div>`;
+  }).join('');
+
+  const GAIN = [
+    {key:'sites',   nm:'Страница для бизнеса',        money:'15–40 тыс ₽ за проект', top:40},
+    {key:'bots',    nm:'Бот-воронка и сопровождение', money:'40–90 тыс ₽ плюс 30–40 тыс ₽ в месяц', top:90},
+    {key:'auto',    nm:'Автоматизация на постоянке',  money:'40–90 тыс ₽ в месяц, клиент остаётся на месяцы', top:90},
+    {key:'content', nm:'Поток контент-задач',         money:'30 задач в месяц это уже 150 тыс ₽', top:150},
+    {key:'data',    nm:'Комплексный проект',          money:'до 300 тыс ₽ у малого бизнеса и до 500 тыс ₽ у онлайн-школ', top:500},
+  ];
+  document.getElementById('gainGrid').innerHTML = GAIN.map(g=>{
+    const isNew = !topKeys.has(g.key);
+    return `<div class="gain ${isNew?'new':''}">
+      <div class="gain-top"><span class="gain-nm">${g.nm}</span>
+        <span class="gain-tag">${isNew?'откроется на программе':'твоя зона уже сейчас'}</span></div>
+      <div class="gain-bar"><div class="gain-fill" style="width:${Math.round(g.top/500*100)}%"></div></div>
+      <div class="gain-money">${g.money}</div>
+    </div>`;
+  }).join('');
+  const newCount = GAIN.filter(g=>!topKeys.has(g.key)).length;
+  document.getElementById('gainNote').innerHTML =
+    `Сейчас тебе доступен нижний край этой лестницы. Программа добавляет ${newCount} направления сверху, ` +
+    `и дело тут не в количестве услуг: когда ты закрываешь бизнесу сразу несколько задач, он платит одному человеку то, ` +
+    `что раньше раскидывал по четырём подрядчикам. Отсюда и чеки в сотни тысяч, и повторные платежи за сопровождение.`;
+
+  const SOFTFIX = {
+    comm: 'Модуль 5 · диагностика клиента и первый диалог идут по готовому скрипту, слова искать не придётся.',
+    sys:  'Модуль 1 и предобучение · рабочая система, расписание и чек-листы собираются до старта учёбы.',
+    solo: 'Модуль 8 · портфолио и коммерческая воронка собираются по шагам, куратор проверяет каждый.',
+    learn:'Модуль 1 · постановка задач нейросети и личные AI-помощники берут на себя черновую работу.',
+    team: 'Модуль 8 · блок делегирования: кого нанимать, сколько платить и как обойтись без микроменеджмента.',
+  };
+  const weakSoft = ssList.filter(x=>x.pts<45);
+  const sfList = weakSoft.length ? weakSoft : [ssList[ssList.length-1]];
+  document.getElementById('softFix').innerHTML =
+    `<div class="gap-label">Софт-скиллы, которые программа подтягивает</div>` +
+    sfList.map(x=>`<div class="sf"><b>${x.nm}</b> · ${SOFTFIX[x.key]}</div>`).join('') +
+    (weakSoft.length ? '' : '<div class="sf">Остальные софт-скиллы у тебя уже в рабочем состоянии, программа их только докрутит на практике.</div>');
 
   // preview hexagon -> pentagon full
   const pcx=100, pcy=95, pR=75;
