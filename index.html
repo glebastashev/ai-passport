@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Паспорт ИИ-инженера</title>
+<title>Паспорт AI-Инженера</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -334,11 +334,11 @@ footer{font-family:var(--mono);color:#6E7789}
 
 <div class="wrap">
   <div class="hero">
-    <div class="eyebrow"><span class="dot"></span>ИИ-ИНЖЕНЕР · диагностика потенциала</div>
-    <h1>Паспорт для освоения профессии <em>«ИИ-инженер»</em></h1>
+    <div class="eyebrow"><span class="dot"></span>Паспорт AI-Инженера · Анкета</div>
+    <h1>Диагностика потенциала в профессии <em>AI-Инженера</em></h1>
     <p>5 коротких страниц. Ответы соберутся в твой личный паспорт: в каких направлениях ИИ-услуг у тебя больше всего потенциала и где тебе будет проще и быстрее заработать.</p>
     <p>После заполнения система соберёт твой профиль, а куратор на индивидуальном разборе даст конкретные рекомендации: с чего стартовать и какие первые заказы брать.</p>
-    <p class="rule">// заполняй честно: паспорт увидишь только ты и куратор разбора</p>
+    <p class="rule">// заполняй честно: ответы увидишь только ты и куратор разбора</p>
 
     <div class="example">
       <div class="ex-label">так будет выглядеть твой паспорт</div>
@@ -492,7 +492,7 @@ footer{font-family:var(--mono);color:#6E7789}
       </div>
     </div>
     <div class="q" data-key="dream_day">
-      <div class="q-label">Представь: ты уже ИИ-инженер, зарабатываешь 150к+ удалённо. Как изменится твой обычный день? Что сможешь себе позволить?</div>
+      <div class="q-label">Представь: ты уже AI-Инженер, зарабатываешь 150к+ удалённо. Как изменится твой обычный день? Что сможешь себе позволить?</div>
       <textarea placeholder="Опиши этот день…"></textarea>
     </div>
     <div class="q" data-key="reward">
@@ -604,7 +604,7 @@ footer{font-family:var(--mono);color:#6E7789}
     <p class="pagesub">Вот твоя карта потенциала: на каких направлениях ИИ-услуг тебе будет проще и быстрее заработать.</p>
 
     <div class="passport-card">
-      <div class="serial" id="serial">ПАСПОРТ ИИ-ИНЖЕНЕРА · СЕРИЯ ТД-26</div>
+      <div class="serial" id="serial">ПАСПОРТ AI-ИНЖЕНЕРА · СЕРИЯ ТД-26</div>
       <div class="passport-meta" id="pmeta"></div>
     </div>
 
@@ -632,7 +632,7 @@ footer{font-family:var(--mono);color:#6E7789}
             <polygon id="pvGrid" points="" fill="none" stroke="rgba(19,26,43,.18)" stroke-width="1"/>
             <polygon id="pvFull" points="" fill="rgba(43,61,107,.35)" stroke="#21335A" stroke-width="2.5"/>
           </svg>
-          <div class="pv-cap">все пять направлений прокачаны на программе ИИ-ИНЖЕНЕР</div>
+          <div class="pv-cap">все пять направлений прокачаны на программе AI-ИНЖЕНЕР</div>
         </div>
       </div>
     </div>
@@ -648,7 +648,7 @@ footer{font-family:var(--mono);color:#6E7789}
   <button class="btn" id="nextBtn">Дальше →</button>
 </div>
 
-<footer>ИИ-ИНЖЕНЕР · тест-драйв · паспорт потенциала</footer>
+<footer>AI-ИНЖЕНЕР · тест-драйв · паспорт потенциала</footer>
 
 <script>
 const AXES = [
@@ -781,7 +781,7 @@ function buildPassport(){
 
   // passport meta
   const num = String(Math.floor(1000 + (score.bots*7+score.auto*13+score.content*17+score.sites*23+score.data*29)%9000));
-  document.getElementById('serial').textContent = 'ПАСПОРТ ИИ-ИНЖЕНЕРА · СЕРИЯ ТД-26 · № ' + num;
+  document.getElementById('serial').textContent = 'ПАСПОРТ AI-ИНЖЕНЕРА · СЕРИЯ ТД-26 · № ' + num;
   document.getElementById('pmeta').innerHTML = [
     ['владелец', data.name || '—'],
     ['возраст', data.age || '—'],
@@ -835,7 +835,7 @@ function buildPassport(){
         <div class="curriculum">
           <div class="curriculum-label">Что это закрывает на программе</div>
           <div class="curriculum-grid">${l.curriculum.map(c=>`<div class="curriculum-item">${c}</div>`).join('')}</div>
-          <div class="curriculum-note">Всё это разбирается по шагам на программе <b>ИИ-ИНЖЕНЕР</b>: с куратором и первыми заказами прямо во время обучения.</div>
+          <div class="curriculum-note">Всё это разбирается по шагам на программе <b>AI-ИНЖЕНЕР</b>: с куратором и первыми заказами прямо во время обучения.</div>
         </div>
       </div>`).join('')
     + `<div class="vcard rest">
