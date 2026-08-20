@@ -715,9 +715,42 @@ function tgFill(u){
 }
 function onTelegramAuth(user){ tgFill(user); }
 
+function tgStartViaBot(){
+  const code = 'p' + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
+  window.__tgCode = code;
+  window.open('https://t.me/' + TG_BOT + '?start=' + code, '_blank');
+  const hint = document.getElementById('tgHint');
+  hint.textContent = 'Нажми Start в боте и вернись сюда, данные подтянутся сами.';
+  let tries = 0;
+  const poll = setInterval(()=>{
+    tries++;
+    if(tries > 60){ clearInterval(poll); hint.textContent = 'Не дождались подтверждения. Нажми кнопку ещё раз.'; return; }
+    const cb = 'tgcb' + tries;
+    window[cb] = (res)=>{
+      if(res && res.ok){
+        clearInterval(poll);
+        tgFill({ id:res.id, username:res.username, first_name:res.name, photo_url:res.photo });
+      }
+      delete window[cb];
+    };
+    const sc = document.createElement('script');
+    sc.src = SHEET_WEBHOOK + '?check=' + encodeURIComponent(code) + '&callback=' + cb;
+    sc.onload = ()=> sc.remove();
+    sc.onerror = ()=> sc.remove();
+    document.body.appendChild(sc);
+  }, 2000);
+}
+
 document.addEventListener('DOMContentLoaded', ()=>{
   const box = document.getElementById('tgbox');
   if(!TG_BOT){ box.style.display='none'; return; }
+  if(SHEET_WEBHOOK){
+    // вход одним нажатием в боте, номер телефона не нужен
+    document.getElementById('tgWidget').innerHTML =
+      '<button class="btn" type="button" id="tgBotBtn">Войти через Telegram →</button>';
+    document.getElementById('tgBotBtn').addEventListener('click', tgStartViaBot);
+    return;
+  }
   const sc = document.createElement('script');
   sc.async = true; sc.src = 'https://telegram.org/js/telegram-widget.js?22';
   sc.setAttribute('data-telegram-login', TG_BOT);
