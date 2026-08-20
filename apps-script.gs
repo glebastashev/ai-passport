@@ -74,10 +74,10 @@ function pull_() {
   }
 }
 
-var ORDER = ['sid', 'обновлено', 'этап', 'tg_name', 'tg_username', 'tg_id',
+var ORDER = ['anketa', 'обновлено', 'этап', 'tg_name', 'tg_username', 'tg_id',
              'phone', 'job', 'income', 'why_me'];
 
-/** одна анкета — одна строка: по sid находим её и обновляем, а не добавляем новую */
+/** одна анкета — одна строка: находим её по ключу anketa и обновляем */
 function doPost(e) {
   var data = (e && e.parameter) ? e.parameter : {};
   var lock = LockService.getScriptLock();
@@ -91,14 +91,14 @@ function doPost(e) {
     if (headers.indexOf('обновлено') === -1) headers.push('обновлено');
     sh.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
 
-    var sid = String(data.sid || '');
+    var key = String(data.anketa || '');
     var target = 0;
-    if (sid && last > 1) {
-      var col = headers.indexOf('sid') + 1;
+    if (key && last > 1) {
+      var col = headers.indexOf('anketa') + 1;
       if (col > 0) {
         var vals = sh.getRange(2, col, last - 1, 1).getValues();
         for (var i = vals.length - 1; i >= 0; i--) {
-          if (String(vals[i][0]) === sid) { target = i + 2; break; }
+          if (String(vals[i][0]) === key) { target = i + 2; break; }
         }
       }
     }

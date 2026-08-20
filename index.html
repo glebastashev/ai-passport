@@ -1128,15 +1128,15 @@ function buildPassport(){
   setTimeout(()=>document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'}), 80);
 }
 
-/** один и тот же sid на всю анкету: приёмник обновляет одну строку, а не плодит новые */
-function passSid(){
+/** «sid» ломает приём на стороне Google, поэтому ключ строки называется anketa */
+function anketaId(){
   const tg = window.__tg || {};
   if(tg.id) return 'tg' + tg.id;
   let v = null;
-  try{ v = localStorage.getItem('pass_sid'); }catch(e){}
+  try{ v = localStorage.getItem('anketa_id'); }catch(e){}
   if(!v){
     v = 's' + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
-    try{ localStorage.setItem('pass_sid', v); }catch(e){}
+    try{ localStorage.setItem('anketa_id', v); }catch(e){}
   }
   return v;
 }
@@ -1145,7 +1145,7 @@ function syncAnswers(stage){
   if(!SHEET_WEBHOOK) return;
   const tg = window.__tg || {};
   const payload = Object.assign({
-    sid: passSid(),
+    anketa: anketaId(),
     'этап': stage,
     tg_id: tg.id || '',
     tg_username: tg.username || '',
@@ -1162,7 +1162,7 @@ document.getElementById('sendBtn').addEventListener('click', async ()=>{
     const data = collectAnswers();
     const r = window.__result || {};
     const payload = {
-      sid: passSid(),
+      anketa: anketaId(),
       'этап': 'паспорт собран',
       ts: new Date().toISOString(),
       serial: r.serial || '',
