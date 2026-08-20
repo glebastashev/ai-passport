@@ -698,6 +698,8 @@ footer{font-family:var(--mono);color:#6E7789}
 // ===== вход через Telegram =====
 // впиши сюда username бота без @ и в @BotFather выполни /setdomain -> glebastashev.github.io
 const TG_BOT = '';
+// сюда вставь ссылку веб-приложения Apps Script (см. apps-script.gs)
+const SHEET_WEBHOOK = '';
 
 function tgFill(u){
   const ava = document.getElementById('ava');
@@ -930,6 +932,12 @@ function buildPassport(){
       <div class="ss-bar"><div class="ss-fill" style="width:${Math.max(6,x.pts)}%"></div></div>
       <div class="ss-cap">${x.pts>=45 ? x.hi : x.lo}</div>
     </div>`).join('');
+  window.__result = {
+    serial: document.getElementById('serial').textContent,
+    top: ranked.slice(0,2).map(l=>l.title),
+    axes: levels.map(l=>({name:l.title, score:l.pts})),
+    soft: ssList.map(x=>({name:x.nm, score:x.pts})),
+  };
   document.getElementById('softNote').innerHTML =
     `Сильнее всего у тебя <b>${ssList[0].nm.toLowerCase()}</b>, слабее <b>${ssList[ssList.length-1].nm.toLowerCase()}</b>. ` +
     `На разборе куратор учтёт это и подберёт формат работы, где сильная сторона даёт результат быстрее.`;
@@ -992,12 +1000,42 @@ function buildPassport(){
   setTimeout(()=>document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'}), 80);
 }
 
-document.getElementById('sendBtn').addEventListener('click', ()=>{
-  // TODO: сюда вставить отправку в бота (webhook / salebot / tg)
-  const b = document.getElementById('sendBtn');
-  b.textContent = 'Паспорт передан ✓ Куратор напишет в Telegram';
-  b.style.background = '#2E7D4F';
-});
+document.getElementById('sendBtn').addEventListener('click', async ()=>{
+    const b = document.getElementById('sendBtn');
+    if(b.dataset.sent) return;
+    const data = collectAnswers();
+    const r = window.__result || {};
+    const payload = {
+      ts: new Date().toISOString(),
+      serial: r.serial || '',
+      tg_id: (window.__tg||{}).id || '',
+      tg_username: (window.__tg||{}).username || '',
+      top1: (r.top||[])[0] || '',
+      top2: (r.top||[])[1] || '',
+      axes: (r.axes||[]).map(a=>a.name+': '+a.score).join(' · '),
+      soft: (r.soft||[]).map(a=>a.name+': '+a.score).join(' · '),
+      answers: JSON.stringify(data),
+      ...data,
+    };
+    if(!SHEET_WEBHOOK){
+      b.textContent = 'Приёмник не подключён';
+      b.style.background = '#B0524D';
+      return;
+    }
+    b.disabled = true; b.textContent = 'Отправляем…';
+    try{
+      const fd = new FormData();
+      Object.entries(payload).forEach(([k,v])=>fd.append(k, v==null?'':String(v)));
+      await fetch(SHEET_WEBHOOK, {method:'POST', body:fd, mode:'no-cors'});
+      b.dataset.sent = '1';
+      b.textContent = 'Паспорт передан ✓ Куратор напишет в Telegram';
+      b.style.background = '#2E7D4F';
+    }catch(err){
+      b.disabled = false;
+      b.textContent = 'Не отправилось, нажми ещё раз';
+      b.style.background = '#B0524D';
+    }
+  });
 
 showStep(0);
 </script>
