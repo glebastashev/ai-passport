@@ -1,21 +1,5 @@
-/**
- * Бэкенд паспорта AI-Инженера на Google Apps Script.
- * Делает две вещи:
- *   1) принимает заполненные анкеты и пишет их в таблицу;
- *   2) работает вебхуком бота: человек жмёт Start, страница узнаёт его имя, ник и аватар.
- *
- * Установка:
- *  1. Создай таблицу на Google Диске.
- *  2. Расширения → Apps Script, вставь этот код.
- *  3. В строке BOT_TOKEN впиши токен бота (здесь он безопасен: код на сервере).
- *  4. Развернуть → Новое развёртывание → Веб-приложение.
- *     Запуск от имени: я. Доступ: все, включая анонимных.
- *  5. Скопируй ссылку .../exec и:
- *     — вставь её в index.html в SHEET_WEBHOOK;
- *     — один раз открой в браузере ссылку .../exec?setup=1, чтобы бот начал слать апдейты сюда.
- */
-
-var BOT_TOKEN  = 'ВСТАВЬ_ТОКЕН_БОТА';
+var SHEET_ID   = '10JdWe9bwt7yVvwCSfcBmt_CLZGwxGiXznDG27ob8WN8';
+var BOT_TOKEN  = '8705329586:AAGw7DX9o0kmZ0KjHYY8-ly5rDQP-ELGo14';
 var SHEET_NAME = 'Заявки';
 var AUTH_NAME  = 'Входы';
 
@@ -28,43 +12,52 @@ function api_(method, payload) {
 }
 
 function sheet_(name) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SpreadsheetApp.openById(SHEET_ID);
   return ss.getSheetByName(name) || ss.insertSheet(name);
 }
 
-function doPost(e) {
-  // ---- апдейт от бота: человек нажал Start с кодом ----
-  var raw = e && e.postData ? e.postData.contents : '';
-  if (raw && raw.charAt(0) === '{') {
-    var upd = JSON.parse(raw);
-
-    // Telegram повторяет доставку, пока не получит быстрый ответ.
-    // Один и тот же апдейт обрабатываем строго один раз.
-    var cache = CacheService.getScriptCache();
-    var key = 'upd' + upd.update_id;
-    if (cache.get(key)) return ContentService.createTextOutput('ok');
-    cache.put(key, '1', 21600);
-
-    var msg = upd.message;
-    if (msg && msg.text && msg.text.indexOf('/start') === 0) {
-      var code = msg.text.split(' ')[1] || '';
-      var u = msg.from;
-      if (code) {
-        // аватар здесь не качаем: это долго и приводит к повторным доставкам
-        sheet_(AUTH_NAME).appendRow([
-          new Date(), code, u.id, u.username || '',
-          [u.first_name, u.last_name].filter(String).join(' '), ''
-        ]);
-      }
-      api_('sendMessage', {
-        chat_id: msg.chat.id,
-        text: 'Готово, возвращайся на страницу паспорта: данные уже подтянулись.'
-      });
-    }
-    return ContentService.createTextOutput('ok');
+function avatar_(userId) {
+  try {
+    var ph = api_('getUserProfilePhotos', { user_id: userId, limit: 1 });
+    if (!ph.ok || !ph.result.total_count) return '';
+    var sizes = ph.result.photos[0];
+    var fileId = sizes[Math.min(1, sizes.length - 1)].file_id;
+    var f = api_('getFile', { file_id: fileId });
+    if (!f.ok) return '';
+    var blob = UrlFetchApp.fetch('https://api.telegram.org/file/bot' + BOT_TOKEN + '/' + f.result.file_path).getBlob();
+    return 'data:' + blob.getContentType() + ';base64,' + Utilities.base64Encode(blob.getBytes());
+  } catch (err) {
+    return '';
   }
+}
 
-  // ---- обычная отправка анкеты ----
+/** забираем новые нажатия Start и пишем их в лист «Входы» */
+function pull_() {
+  var props = PropertiesService.getScriptProperties();
+  var offset = Number(props.getProperty('offset') || 0);
+  var r = api_('getUpdates', { offset: offset, timeout: 0, allowed_updates: ['message'] });
+  if (!r.ok || !r.result.length) return;
+
+  var sh = sheet_(AUTH_NAME);
+  r.result.forEach(function (upd) {
+    offset = Math.max(offset, upd.update_id + 1);
+    var msg = upd.message;
+    if (!msg || !msg.text || msg.text.indexOf('/start') !== 0) return;
+    var code = msg.text.split(' ')[1] || '';
+    var u = msg.from;
+    if (code) {
+      sh.appendRow([new Date(), code, u.id, u.username || '',
+        [u.first_name, u.last_name].filter(String).join(' '), '']);
+    }
+    api_('sendMessage', {
+      chat_id: msg.chat.id,
+      text: 'Готово, возвращайся на страницу паспорта: анкета уже открылась.'
+    });
+  });
+  props.setProperty('offset', String(offset));
+}
+
+function doPost(e) {
   var data = (e && e.parameter) ? e.parameter : {};
   var sh = sheet_(SHEET_NAME);
   var headers = sh.getLastRow() > 0 ? sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0] : [];
@@ -78,21 +71,14 @@ function doPost(e) {
 function doGet(e) {
   var p = (e && e.parameter) ? e.parameter : {};
 
-  // один раз: привязать вебхук бота к этому развёртыванию
-  if (p.setup) {
-    var url = ScriptApp.getService().getUrl();
-    var r = api_('setWebhook', { url: url });
-    return ContentService.createTextOutput(JSON.stringify(r)).setMimeType(ContentService.MimeType.JSON);
-  }
-
-  // страница спрашивает: этот код уже подтвердили?
   if (p.check) {
+    pull_();                                   // сначала забираем свежие нажатия
     var sh = sheet_(AUTH_NAME);
     var rows = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues() : [];
     for (var i = rows.length - 1; i >= 0; i--) {
       if (String(rows[i][1]) === String(p.check)) {
         var photo = rows[i][5];
-        if (!photo) {                     // первый запрос: качаем фото и запоминаем в таблице
+        if (!photo) {
           photo = avatar_(rows[i][2]);
           if (photo) sh.getRange(i + 2, 6).setValue(photo);
         }
