@@ -262,7 +262,7 @@ body::before{
 }
 /* серый круг в правом верхнем углу, как на слайдах */
 
-@media(max-width:900px){.ava{width:190px;height:190px;right:-70px}}
+@media(max-width:900px){}
 
 .eyebrow{font-family:var(--mono);font-weight:700;font-size:11.5px;letter-spacing:.22em;color:#6E7789}
 .eyebrow .dot{display:none}
@@ -351,7 +351,6 @@ footer{font-family:var(--mono);color:#6E7789}
 </head>
 <body>
 
-<div class="ava" id="ava"><img id="avaImg" alt=""></div>
 <div class="wrap">
   <div class="hero">
     <div class="eyebrow"><span class="dot"></span>Паспорт AI-Инженера · Анкета</div>
@@ -701,17 +700,32 @@ const TG_BOT = 'ai_entrance_bot';
 // сюда вставь ссылку веб-приложения Apps Script (см. apps-script.gs)
 const SHEET_WEBHOOK = 'https://script.google.com/macros/s/AKfycbwcwn8eVKth9FiKDWkkamOP2Erk_C_LVnCAPO6-jJ1icuUvEx665iJx8-q75_0SWW4iEA/exec';
 
+function tgAuthed(){ return !!(window.__tg && (window.__tg.id || window.__tg.username)); }
+
+function lockGate(){
+  const btn = document.getElementById('nextBtn');
+  if(!btn) return;
+  const onFirst = document.querySelector('.step.active') === document.querySelector('.step[data-step="1"]');
+  if(onFirst && TG_BOT && !tgAuthed()){
+    btn.disabled = true; btn.style.opacity = '.45'; btn.style.cursor = 'not-allowed';
+    btn.title = 'Сначала войди через Telegram';
+  } else {
+    btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = '';
+    btn.title = '';
+  }
+}
+
 function tgFill(u){
-  const ava = document.getElementById('ava');
-  if(u.photo_url){ const im=document.getElementById('avaImg'); im.src=u.photo_url; ava.classList.add('on'); }
   const nameQ = document.querySelector('.q[data-key="name"] input');
   if(nameQ && !nameQ.value){ nameQ.value = [u.first_name,u.last_name].filter(Boolean).join(' ');
     nameQ.dispatchEvent(new Event('input',{bubbles:true})); }
   window.__tg = {id:u.id, username:u.username||'', name:[u.first_name,u.last_name].filter(Boolean).join(' ')};
+  try{ localStorage.setItem('tg_user', JSON.stringify(window.__tg)); }catch(e){}
   const box = document.getElementById('tgbox'); box.classList.add('done');
   document.getElementById('tgWidget').innerHTML =
     `<div class="tg-me">${u.photo_url?`<img src="${u.photo_url}">`:''}<span>${window.__tg.name}${u.username?' · @'+u.username:''}</span></div>`;
   document.getElementById('tgHint').textContent = 'Готово, данные подтянулись. Дальше только вопросы по существу.';
+  lockGate();
 }
 function onTelegramAuth(user){ tgFill(user); }
 
@@ -744,6 +758,28 @@ function tgStartViaBot(){
 document.addEventListener('DOMContentLoaded', ()=>{
   const box = document.getElementById('tgbox');
   if(!TG_BOT){ box.style.display='none'; return; }
+
+  // если уже входил раньше, второй раз не гоняем в бота
+  try{
+    const saved = JSON.parse(localStorage.getItem('tg_user') || 'null');
+    if(saved && (saved.id || saved.username)){
+      window.__tg = saved;
+      const nameQ = document.querySelector('.q[data-key="name"] input');
+      if(nameQ && !nameQ.value){ nameQ.value = saved.name || ''; nameQ.dispatchEvent(new Event('input',{bubbles:true})); }
+      box.classList.add('done');
+      document.getElementById('tgWidget').innerHTML =
+        `<div class="tg-me"><span>${saved.name || ''}${saved.username ? ' · @'+saved.username : ''}</span></div>`;
+      document.getElementById('tgHint').innerHTML =
+        'Ты уже вошёл. <a href="#" id="tgLogout" style="color:inherit">Войти под другим аккаунтом</a>';
+      document.getElementById('tgLogout').addEventListener('click', (ev)=>{
+        ev.preventDefault();
+        try{ localStorage.removeItem('tg_user'); }catch(e){}
+        location.reload();
+      });
+      lockGate();
+      return;
+    }
+  }catch(e){}
   const w = document.getElementById('tgWidget');
   w.innerHTML = '<button class="btn" type="button" id="tgBotBtn">Войти через Telegram →</button>';
   document.getElementById('tgBotBtn').addEventListener('click', ()=>{
@@ -760,6 +796,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       const v = inp.value.trim().replace(/^@/,'');
       window.__tg = Object.assign(window.__tg||{}, {username:v});
       box.classList.toggle('done', v.length > 2);
+      lockGate();
     });
     inp.focus();
   });
@@ -803,6 +840,7 @@ const stepNote = document.getElementById('stepNote');
 const stickybar = document.querySelector('.stickybar');
 
 function showStep(i){
+  setTimeout(lockGate, 0);
   steps.forEach((s,si)=>s.classList.toggle('active', si===i));
   cur = i;
   fill.style.width = ((i)/steps.length*100 + 10) + '%';
@@ -968,6 +1006,7 @@ function buildPassport(){
       <div class="ss-bar"><div class="ss-fill" style="width:${Math.max(6,x.pts)}%"></div></div>
       <div class="ss-cap">${x.pts>=45 ? x.hi : x.lo}</div>
     </div>`).join('');
+  setTimeout(()=>{ const b=document.getElementById('sendBtn'); if(b && !b.dataset.sent) b.click(); }, 400);
   window.__result = {
     serial: document.getElementById('serial').textContent,
     top: ranked.slice(0,2).map(l=>l.title),
@@ -1073,7 +1112,8 @@ document.getElementById('sendBtn').addEventListener('click', async ()=>{
     }
   });
 
-showStep(0);
+lockGate();
+  showStep(0);
 </script>
 </body>
 </html>

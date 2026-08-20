@@ -32,35 +32,28 @@ function sheet_(name) {
   return ss.getSheetByName(name) || ss.insertSheet(name);
 }
 
-/** аватар пользователя как data:URI, чтобы токен не утёк на страницу */
-function avatar_(userId) {
-  try {
-    var ph = api_('getUserProfilePhotos', { user_id: userId, limit: 1 });
-    if (!ph.ok || !ph.result.total_count) return '';
-    var sizes = ph.result.photos[0];
-    var fileId = sizes[Math.min(1, sizes.length - 1)].file_id;
-    var f = api_('getFile', { file_id: fileId });
-    if (!f.ok) return '';
-    var blob = UrlFetchApp.fetch('https://api.telegram.org/file/bot' + BOT_TOKEN + '/' + f.result.file_path).getBlob();
-    return 'data:' + blob.getContentType() + ';base64,' + Utilities.base64Encode(blob.getBytes());
-  } catch (err) {
-    return '';
-  }
-}
-
 function doPost(e) {
   // ---- апдейт от бота: человек нажал Start с кодом ----
   var raw = e && e.postData ? e.postData.contents : '';
   if (raw && raw.charAt(0) === '{') {
     var upd = JSON.parse(raw);
+
+    // Telegram повторяет доставку, пока не получит быстрый ответ.
+    // Один и тот же апдейт обрабатываем строго один раз.
+    var cache = CacheService.getScriptCache();
+    var key = 'upd' + upd.update_id;
+    if (cache.get(key)) return ContentService.createTextOutput('ok');
+    cache.put(key, '1', 21600);
+
     var msg = upd.message;
     if (msg && msg.text && msg.text.indexOf('/start') === 0) {
       var code = msg.text.split(' ')[1] || '';
       var u = msg.from;
       if (code) {
+        // аватар здесь не качаем: это долго и приводит к повторным доставкам
         sheet_(AUTH_NAME).appendRow([
           new Date(), code, u.id, u.username || '',
-          [u.first_name, u.last_name].filter(String).join(' '), avatar_(u.id)
+          [u.first_name, u.last_name].filter(String).join(' ')
         ]);
       }
       api_('sendMessage', {
@@ -95,10 +88,10 @@ function doGet(e) {
   // страница спрашивает: этот код уже подтвердили?
   if (p.check) {
     var sh = sheet_(AUTH_NAME);
-    var rows = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues() : [];
+    var rows = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 5).getValues() : [];
     for (var i = rows.length - 1; i >= 0; i--) {
       if (String(rows[i][1]) === String(p.check)) {
-        var out = { ok: true, id: rows[i][2], username: rows[i][3], name: rows[i][4], photo: rows[i][5] };
+        var out = { ok: true, id: rows[i][2], username: rows[i][3], name: rows[i][4] };
         return ContentService.createTextOutput((p.callback || 'cb') + '(' + JSON.stringify(out) + ')')
           .setMimeType(ContentService.MimeType.JAVASCRIPT);
       }
