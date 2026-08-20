@@ -743,23 +743,11 @@ function tgStartViaBot(){
 
 document.addEventListener('DOMContentLoaded', ()=>{
   const box = document.getElementById('tgbox');
-  if(!TG_BOT){ box.style.display='none'; return; }
-  if(SHEET_WEBHOOK){
-    // вход одним нажатием в боте, номер телефона не нужен
-    document.getElementById('tgWidget').innerHTML =
-      '<button class="btn" type="button" id="tgBotBtn">Войти через Telegram →</button>';
-    document.getElementById('tgBotBtn').addEventListener('click', tgStartViaBot);
-    return;
-  }
-  const sc = document.createElement('script');
-  sc.async = true; sc.src = 'https://telegram.org/js/telegram-widget.js?22';
-  sc.setAttribute('data-telegram-login', TG_BOT);
-  sc.setAttribute('data-size', 'large');
-  sc.setAttribute('data-radius', '0');
-  sc.setAttribute('data-userpic', 'true');
-  sc.setAttribute('data-onauth', 'onTelegramAuth(user)');
-  sc.setAttribute('data-request-access', 'write');
-  document.getElementById('tgWidget').appendChild(sc);
+  // вход только через бота: человек жмёт Start, номер телефона не спрашиваем
+  if(!TG_BOT || !SHEET_WEBHOOK){ box.style.display='none'; return; }
+  document.getElementById('tgWidget').innerHTML =
+    '<button class="btn" type="button" id="tgBotBtn">Войти через Telegram →</button>';
+  document.getElementById('tgBotBtn').addEventListener('click', tgStartViaBot);
 });
 
 const AXES = [
