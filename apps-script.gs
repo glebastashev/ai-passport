@@ -53,7 +53,7 @@ function doPost(e) {
         // аватар здесь не качаем: это долго и приводит к повторным доставкам
         sheet_(AUTH_NAME).appendRow([
           new Date(), code, u.id, u.username || '',
-          [u.first_name, u.last_name].filter(String).join(' ')
+          [u.first_name, u.last_name].filter(String).join(' '), ''
         ]);
       }
       api_('sendMessage', {
@@ -88,10 +88,15 @@ function doGet(e) {
   // страница спрашивает: этот код уже подтвердили?
   if (p.check) {
     var sh = sheet_(AUTH_NAME);
-    var rows = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 5).getValues() : [];
+    var rows = sh.getLastRow() > 1 ? sh.getRange(2, 1, sh.getLastRow() - 1, 6).getValues() : [];
     for (var i = rows.length - 1; i >= 0; i--) {
       if (String(rows[i][1]) === String(p.check)) {
-        var out = { ok: true, id: rows[i][2], username: rows[i][3], name: rows[i][4] };
+        var photo = rows[i][5];
+        if (!photo) {                     // первый запрос: качаем фото и запоминаем в таблице
+          photo = avatar_(rows[i][2]);
+          if (photo) sh.getRange(i + 2, 6).setValue(photo);
+        }
+        var out = { ok: true, id: rows[i][2], username: rows[i][3], name: rows[i][4], photo: photo };
         return ContentService.createTextOutput((p.callback || 'cb') + '(' + JSON.stringify(out) + ')')
           .setMimeType(ContentService.MimeType.JAVASCRIPT);
       }
