@@ -261,11 +261,8 @@ body::before{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)' opacity='.14'/%3E%3C/svg%3E");
 }
 /* серый круг в правом верхнем углу, как на слайдах */
-body::after{
-  content:'';position:absolute;right:max(-90px,calc(50% - 520px));top:26px;
-  width:300px;height:300px;border-radius:50%;background:#D2D1CF;opacity:.85;z-index:0;pointer-events:none;
-}
-@media(max-width:900px){body::after{width:190px;height:190px;right:-70px}}
+
+@media(max-width:900px){.ava{width:190px;height:190px;right:-70px}}
 
 .eyebrow{font-family:var(--mono);font-weight:700;font-size:11.5px;letter-spacing:.22em;color:#6E7789}
 .eyebrow .dot{display:none}
@@ -328,16 +325,45 @@ input:focus,textarea:focus{border-color:var(--navy)}
 .cta p{font-family:var(--mono);color:#C3CBDD}
 .preview-card{border-radius:0;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18)}
 footer{font-family:var(--mono);color:#6E7789}
+
+/* ---------- софт-скиллы ---------- */
+.soft{margin:22px 0 6px}
+.soft-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:#6E7789;margin-bottom:12px}
+.soft-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 26px}
+@media(max-width:560px){.soft-grid{grid-template-columns:1fr}}
+.ss{display:flex;flex-direction:column;gap:6px}
+.ss-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ss-nm{font-weight:800;font-size:13.5px;color:var(--ink)}
+.ss-val{font-family:var(--display);font-weight:800;font-size:13px;color:var(--navy)}
+.ss-bar{height:8px;background:rgba(16,22,36,.10)}
+.ss-fill{height:100%;background:var(--lime)}
+.ss.low .ss-fill{background:rgba(33,51,90,.35)}
+.ss-cap{font-family:var(--mono);font-size:11.5px;color:#6E7789;line-height:1.35}
+.soft-note{margin-top:14px;font-size:13.5px;color:#3C4457;line-height:1.5}
+
+.tgbox{margin:22px 0 18px;padding:16px 18px;border:1px solid rgba(16,22,36,.16);background:#fff;max-width:520px}
+.tgbox.done{border-color:var(--lime);background:rgba(194,240,123,.16)}
+.tg-lb{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:#6E7789;margin-bottom:10px}
+.tg-hint{font-family:var(--mono);font-size:11.5px;color:#6E7789;margin-top:10px;line-height:1.45}
+.tg-me{display:flex;align-items:center;gap:12px;font-weight:800;font-size:14.5px;color:var(--ink)}
+.tg-me img{width:38px;height:38px;border-radius:50%;object-fit:cover}
 </style>
 </head>
 <body>
 
+<div class="ava" id="ava"><img id="avaImg" alt=""></div>
 <div class="wrap">
   <div class="hero">
     <div class="eyebrow"><span class="dot"></span>Паспорт AI-Инженера · Анкета</div>
     <h1>Диагностика потенциала в профессии <em>AI-Инженера</em></h1>
     <p>5 коротких страниц. Ответы соберутся в твой личный паспорт: в каких направлениях ИИ-услуг у тебя больше всего потенциала и где тебе будет проще и быстрее заработать.</p>
     <p>После заполнения система соберёт твой профиль, а куратор на индивидуальном разборе даст конкретные рекомендации: с чего стартовать и какие первые заказы брать.</p>
+    <div class="tgbox" id="tgbox">
+      <div class="tg-lb">вход по Telegram, чтобы не заполнять вручную</div>
+      <div id="tgWidget"></div>
+      <div class="tg-hint" id="tgHint">Подтянем имя, ник и аватар. Ничего не публикуем и никому не передаём.</div>
+    </div>
+
     <p class="rule">// заполняй честно: ответы увидишь только ты и куратор разбора</p>
 
     <div class="example">
@@ -399,68 +425,80 @@ footer{font-family:var(--mono);color:#6E7789}
     <div class="q scored" data-key="t1" data-req="1">
       <div class="q-label">Как тебе комфортнее решать задачи? <span class="req">*</span></div>
       <div class="chips stack" data-single="1">
-        <span class="chip" data-sc="bots:3,sites:1">В переписке и разговоре с людьми</span>
-        <span class="chip" data-sc="auto:3,data:2">Наедине с задачей, чтобы никто не дёргал</span>
-        <span class="chip" data-sc="content:3,sites:2">Придумывать, пробовать, переделывать</span>
-        <span class="chip" data-sc="data:3,auto:2">Разложить всё по полочкам и идти по списку</span>
+        <span class="chip" data-sc="bots:3,sites:1" data-ss="comm:3,team:2">В переписке и разговоре с людьми</span>
+        <span class="chip" data-sc="auto:3,data:2" data-ss="sys:3,solo:3">Наедине с задачей, чтобы никто не дёргал</span>
+        <span class="chip" data-sc="content:3,sites:2" data-ss="learn:2,solo:1">Придумывать, пробовать, переделывать</span>
+        <span class="chip" data-sc="data:3,auto:2" data-ss="sys:3,learn:1">Разложить всё по полочкам и идти по списку</span>
       </div>
     </div>
+
     <div class="q scored" data-key="t2" data-req="1">
       <div class="q-label">Что тебе всегда давалось легче всего? <span class="req">*</span></div>
       <div class="chips stack" data-single="1">
-        <span class="chip" data-sc="bots:3">Договариваться и убеждать</span>
-        <span class="chip" data-sc="auto:3,sites:1">Собирать, чинить, настраивать</span>
-        <span class="chip" data-sc="content:3,sites:2">Рисовать, писать, придумывать</span>
-        <span class="chip" data-sc="data:3">Математика, таблицы, точность</span>
+        <span class="chip" data-sc="bots:3" data-ss="comm:3">Договариваться и убеждать</span>
+        <span class="chip" data-sc="auto:3,sites:1" data-ss="sys:3">Собирать, чинить, настраивать</span>
+        <span class="chip" data-sc="content:3,sites:2" data-ss="learn:2">Рисовать, писать, придумывать</span>
+        <span class="chip" data-sc="data:3" data-ss="sys:3,solo:1">Математика, таблицы, точность</span>
       </div>
     </div>
+
     <div class="q scored" data-key="t3" data-req="1">
       <div class="q-label">Выбери задачу на вечер: <span class="req">*</span></div>
       <div class="chips stack" data-single="1">
-        <span class="chip" data-sc="bots:3,auto:1">Настроить переписку, которая сама продаёт</span>
-        <span class="chip" data-sc="auto:3">Сделать так, чтобы рутина крутилась без меня</span>
-        <span class="chip" data-sc="sites:3,content:2">Собрать красивую страницу или картинку</span>
-        <span class="chip" data-sc="data:3">Найти, где в цифрах прячется ошибка</span>
+        <span class="chip" data-sc="bots:3,auto:1" data-ss="comm:2">Настроить переписку, которая сама продаёт</span>
+        <span class="chip" data-sc="auto:3" data-ss="sys:3">Сделать так, чтобы рутина крутилась без меня</span>
+        <span class="chip" data-sc="sites:3,content:2" data-ss="learn:2">Собрать красивую страницу или картинку</span>
+        <span class="chip" data-sc="data:3" data-ss="sys:2,solo:2">Найти, где в цифрах прячется ошибка</span>
       </div>
     </div>
+
     <div class="q scored" data-key="t4" data-req="1">
-      <div class="q-label">Как ты с рутиной? <span class="req">*</span></div>
+      <div class="q-label">Заказчик прислал путаное ТЗ. Что делаешь первым? <span class="req">*</span></div>
+      <div class="q-hint">Половина работы ИИ-инженера это снять задачу правильно</div>
       <div class="chips stack" data-single="1">
-        <span class="chip" data-sc="auto:2,data:2">Люблю повторяемость и порядок</span>
-        <span class="chip" data-sc="content:2,sites:2">Быстро скучаю, хочется разного</span>
-        <span class="chip" data-sc="bots:2,auto:1">Рутину терплю, если она приносит деньги</span>
+        <span class="chip" data-sc="bots:3,sites:1" data-ss="comm:3,solo:2">Звоню или пишу и расспрашиваю, пока не станет ясно</span>
+        <span class="chip" data-sc="data:2,auto:2" data-ss="sys:3,solo:2">Разбираю на пункты и присылаю список вопросов</span>
+        <span class="chip" data-sc="sites:2,content:2" data-ss="learn:3,solo:2">Делаю черновик по-своему и показываю как понял</span>
+        <span class="chip" data-sc="auto:1,content:1" data-ss="team:3">Прошу помощи у того, кто уже такое делал</span>
       </div>
     </div>
+
     <div class="q scored" data-key="t5" data-req="1">
-      <div class="q-label">Общение с клиентами для тебя: <span class="req">*</span></div>
+      <div class="q-label">Что интереснее делать с нейросетью? <span class="req">*</span></div>
       <div class="chips stack" data-single="1">
-        <span class="chip" data-sc="bots:3,sites:1">Кайф, я люблю людей</span>
-        <span class="chip" data-sc="bots:1,auto:1,data:1">Нормально, если есть скрипт</span>
-        <span class="chip" data-sc="auto:2,data:2,content:1">Лучше поменьше</span>
+        <span class="chip" data-sc="bots:4" data-ss="comm:2">Учить её вести диалог и отвечать вместо человека</span>
+        <span class="chip" data-sc="auto:4" data-ss="sys:3">Сцеплять сервисы, чтобы данные ходили сами</span>
+        <span class="chip" data-sc="content:4,sites:1" data-ss="learn:2">Генерить тексты, картинки и видео пачками</span>
+        <span class="chip" data-sc="data:4" data-ss="sys:2">Считать, сводить отчёты и искать закономерности</span>
       </div>
     </div>
+
     <div class="q scored" data-key="t6" data-req="1">
       <div class="q-label">Насколько уверенно ты с техникой? <span class="req">*</span></div>
       <div class="chips stack" data-single="1">
-        <span class="chip" data-sc="auto:2,bots:1,sites:1,content:1,data:1" data-speed="2">Уверенно, новое осваиваю быстро</span>
-        <span class="chip" data-sc="sites:1,content:1,bots:1" data-speed="1">Средне: мессенджеры, браузер, документы</span>
-        <span class="chip" data-sc="" data-speed="0">Пока слабо, но готов учиться</span>
+        <span class="chip" data-sc="auto:2,bots:1,sites:1,content:1,data:1" data-ss="learn:3,solo:2" data-speed="2">Уверенно, новое осваиваю быстро</span>
+        <span class="chip" data-sc="sites:1,content:1,bots:1" data-ss="learn:2" data-speed="1">Средне: мессенджеры, браузер, документы</span>
+        <span class="chip" data-sc="" data-ss="learn:1,team:2" data-speed="0">Пока слабо, но готов учиться</span>
       </div>
     </div>
+
     <div class="q scored" data-key="t7" data-req="1">
-      <div class="q-label">Что мотивирует сильнее? <span class="req">*</span></div>
+      <div class="q-label">Не получилось с первого раза. Твоя реакция? <span class="req">*</span></div>
+      <div class="q-hint">Первый бот почти никогда не заводится сразу</div>
       <div class="chips stack" data-single="1">
-        <span class="chip" data-sc="sites:2,content:1">Быстрые первые деньги</span>
-        <span class="chip" data-sc="bots:2,auto:2">Стабильный доход каждый месяц</span>
-        <span class="chip" data-sc="data:1,auto:2">Большие чеки за крупные проекты</span>
+        <span class="chip" data-sc="auto:2,data:2" data-ss="solo:3,learn:3">Сажусь и разбираю, пока не заработает</span>
+        <span class="chip" data-sc="bots:2,sites:1" data-ss="team:3,comm:2">Иду к куратору или в чат, чтобы не терять время</span>
+        <span class="chip" data-sc="content:2,sites:2" data-ss="learn:2,solo:1">Пробую другой путь, обходной</span>
+        <span class="chip" data-sc="data:1" data-ss="team:1">Откладываю и возвращаюсь позже</span>
       </div>
     </div>
+
     <div class="q scored" data-key="t8" data-req="1">
       <div class="q-label">Твой идеальный формат работы: <span class="req">*</span></div>
       <div class="chips stack" data-single="1">
-        <span class="chip" data-sc="content:2,sites:2">Много небольших задач: быстро сдал и дальше</span>
-        <span class="chip" data-sc="bots:2,auto:2">Несколько постоянных клиентов на сопровождении</span>
-        <span class="chip" data-sc="data:2,auto:1">Один большой проект, погрузиться с головой</span>
+        <span class="chip" data-sc="content:2,sites:2" data-ss="learn:2">Много небольших задач: быстро сдал и дальше</span>
+        <span class="chip" data-sc="bots:2,auto:2" data-ss="comm:2,sys:2">Несколько постоянных клиентов на сопровождении</span>
+        <span class="chip" data-sc="data:2,auto:1" data-ss="solo:3,sys:2">Один большой проект, погрузиться с головой</span>
       </div>
     </div>
   </section>
@@ -609,11 +647,17 @@ footer{font-family:var(--mono);color:#6E7789}
     </div>
 
     <div class="radar-panel">
-      <svg class="radar-box" id="radar" viewBox="0 0 360 340"></svg>
+      <svg class="radar-box" id="radar" viewBox="0 0 360 348"></svg>
       <div class="radar-legend" id="radarLegend"></div>
     </div>
 
-    <div class="verdict-intro">Подсвечены <b>два направления, где твой потенциал сейчас выше всего</b>. С них и стоит заходить в профессию: остальные подтянутся в работе, здесь никто ничего не «должен уметь заранее».</div>
+    <div class="soft" id="softBlock">
+    <div class="soft-label">Софт-скиллы по ответам</div>
+    <div class="soft-grid" id="softGrid"></div>
+    <div class="soft-note" id="softNote"></div>
+  </div>
+
+  <div class="verdict-intro">Подсвечены <b>два направления, где твой потенциал сейчас выше всего</b>. С них и стоит заходить в профессию: остальные подтянутся в работе, здесь никто ничего не «должен уметь заранее».</div>
 
     <div id="verdictCards"></div>
 
@@ -651,6 +695,38 @@ footer{font-family:var(--mono);color:#6E7789}
 <footer>AI-ИНЖЕНЕР · тест-драйв · паспорт потенциала</footer>
 
 <script>
+// ===== вход через Telegram =====
+// впиши сюда username бота без @ и в @BotFather выполни /setdomain -> glebastashev.github.io
+const TG_BOT = '';
+
+function tgFill(u){
+  const ava = document.getElementById('ava');
+  if(u.photo_url){ const im=document.getElementById('avaImg'); im.src=u.photo_url; ava.classList.add('on'); }
+  const nameQ = document.querySelector('.q[data-key="name"] input');
+  if(nameQ && !nameQ.value){ nameQ.value = [u.first_name,u.last_name].filter(Boolean).join(' ');
+    nameQ.dispatchEvent(new Event('input',{bubbles:true})); }
+  window.__tg = {id:u.id, username:u.username||'', name:[u.first_name,u.last_name].filter(Boolean).join(' ')};
+  const box = document.getElementById('tgbox'); box.classList.add('done');
+  document.getElementById('tgWidget').innerHTML =
+    `<div class="tg-me">${u.photo_url?`<img src="${u.photo_url}">`:''}<span>${window.__tg.name}${u.username?' · @'+u.username:''}</span></div>`;
+  document.getElementById('tgHint').textContent = 'Готово, данные подтянулись. Дальше только вопросы по существу.';
+}
+function onTelegramAuth(user){ tgFill(user); }
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const box = document.getElementById('tgbox');
+  if(!TG_BOT){ box.style.display='none'; return; }
+  const sc = document.createElement('script');
+  sc.async = true; sc.src = 'https://telegram.org/js/telegram-widget.js?22';
+  sc.setAttribute('data-telegram-login', TG_BOT);
+  sc.setAttribute('data-size', 'large');
+  sc.setAttribute('data-radius', '0');
+  sc.setAttribute('data-userpic', 'true');
+  sc.setAttribute('data-onauth', 'onTelegramAuth(user)');
+  sc.setAttribute('data-request-access', 'write');
+  document.getElementById('tgWidget').appendChild(sc);
+});
+
 const AXES = [
   { key:'bots', title:'Чат-боты и ИИ-продавцы', angle:-90,
     why:'Твоя сильная сторона: общение и диалоги. Чат-бот это и есть упакованная переписка: ты собираешь диалог, который продаёт без тебя, и бизнес платит за это охотнее всего.',
@@ -772,7 +848,8 @@ function buildPassport(){
   const levels = AXES.map(a=>{
     const raw = Math.min(1, score[a.key]/AXIS_MAX[a.key]);
     const pct = 0.22 + raw*0.78;
-    return {...a, raw, pct};
+    const pts = Math.round(raw*100);
+    return {...a, raw, pct, pts};
   });
   const ranked = [...levels].sort((x,y)=>y.raw-x.raw);
   const topKeys = new Set([ranked[0].key, ranked[1].key]);
@@ -792,7 +869,7 @@ function buildPassport(){
   document.getElementById('resTitle').textContent = (data.name ? data.name + ', твой' : 'Твой') + ' паспорт готов';
 
   // radar
-  const cx=180, cy=168, R=118;
+  const cx=180, cy=172, R=104;
   let svg='';
   for(let ring=1; ring<=4; ring++){
     const r=R*ring/4;
@@ -813,14 +890,57 @@ function buildPassport(){
     const [x,y]=polar(cx,cy,R+26,l.angle);
     svg+=`<circle cx="${x}" cy="${y}" r="12" fill="${topKeys.has(l.key)?'#C2F07B':'#101624'}"/>`;
     svg+=`<text x="${x}" y="${y+4}" text-anchor="middle" font-family="Unbounded" font-weight="700" font-size="11" fill="#FFFFFF">${i+1}</text>`;
+    const [tx,ty]=polar(cx,cy,R+48,l.angle);
+    svg+=`<text x="${tx}" y="${ty+4}" text-anchor="middle" font-family="Unbounded" font-weight="800" font-size="13" fill="#101624">${l.pts}</text>`;
   });
+
+  // ---- софт-скиллы ----
+  const SS = [
+    {key:'comm',  nm:'Коммуникация',    hi:'легко идёшь на контакт и снимаешь задачу словами', lo:'общение даётся тяжелее, зато не отвлекает от работы'},
+    {key:'sys',   nm:'Системность',     hi:'раскладываешь работу на шаги и держишь порядок',   lo:'порядок пока плавает, помогут готовые чек-листы'},
+    {key:'solo',  nm:'Самостоятельность',hi:'тянешь задачу до результата сам',                  lo:'спокойнее работать, когда рядом есть подсказка'},
+    {key:'learn', nm:'Скорость освоения',hi:'быстро подхватываешь новые инструменты',           lo:'осваиваешь новое неспешно, но основательно'},
+    {key:'team',  nm:'Опора на команду', hi:'вовремя просишь помощь и не буксуешь',             lo:'редко просишь помощь, легко застрять в одиночку'},
+  ];
+  const ssScore = {comm:0, sys:0, solo:0, learn:0, team:0};
+  document.querySelectorAll('.chip.sel').forEach(ch=>{
+    (ch.dataset.ss||'').split(',').forEach(pair=>{
+      if(!pair) return; const [k,v]=pair.split(':');
+      if(ssScore[k]!==undefined) ssScore[k]+=parseInt(v,10);
+    });
+  });
+  const ssMax = {comm:0, sys:0, solo:0, learn:0, team:0};
+  document.querySelectorAll('.q.scored').forEach(q=>{
+    const best = {comm:0, sys:0, solo:0, learn:0, team:0};
+    q.querySelectorAll('.chip').forEach(ch=>{
+      (ch.dataset.ss||'').split(',').forEach(pair=>{
+        if(!pair) return; const [k,v]=pair.split(':');
+        if(best[k]!==undefined) best[k]=Math.max(best[k], parseInt(v,10));
+      });
+    });
+    Object.keys(ssMax).forEach(k=> ssMax[k]+=best[k]);
+  });
+  const ssList = SS.map(x=>{
+    const pts = Math.round(100*ssScore[x.key]/Math.max(1, ssMax[x.key]));
+    return {...x, pts};
+  }).sort((a,b)=>b.pts-a.pts);
+  document.getElementById('softGrid').innerHTML = ssList.map(x=>`
+    <div class="ss ${x.pts<45?'low':''}">
+      <div class="ss-top"><span class="ss-nm">${x.nm}</span><span class="ss-val">${x.pts}</span></div>
+      <div class="ss-bar"><div class="ss-fill" style="width:${Math.max(6,x.pts)}%"></div></div>
+      <div class="ss-cap">${x.pts>=45 ? x.hi : x.lo}</div>
+    </div>`).join('');
+  document.getElementById('softNote').innerHTML =
+    `Сильнее всего у тебя <b>${ssList[0].nm.toLowerCase()}</b>, слабее <b>${ssList[ssList.length-1].nm.toLowerCase()}</b>. ` +
+    `На разборе куратор учтёт это и подберёт формат работы, где сильная сторона даёт результат быстрее.`;
+
   document.getElementById('radar').innerHTML = svg;
 
   document.getElementById('radarLegend').innerHTML = levels.map((l,i)=>`
     <div class="rl ${topKeys.has(l.key)?'top':''}">
       <span class="b">${i+1}</span>
-      <span class="tx"><span class="nm">${l.title}</span><span class="gl">потенциал ${Math.round(l.pct*100)}%</span></span>
-      <span class="sc">${topKeys.has(l.key)?'ТОП':''}</span>
+      <span class="tx"><span class="nm">${l.title}</span></span>
+      <span class="sc">${l.pts}<small style="font-size:9px;letter-spacing:.1em"> / 100</small></span>
     </div>`).join('');
 
   // verdict cards: top-2 detailed, rest short
