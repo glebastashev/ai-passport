@@ -348,13 +348,16 @@ footer{font-family:var(--mono);color:#6E7789}
 .tg-me{display:flex;align-items:center;gap:12px;font-weight:800;font-size:14.5px;color:var(--ink)}
 .tg-me img{width:38px;height:38px;border-radius:50%;object-fit:cover}
 
-.ava{display:none}
-.ava.on{display:block;position:absolute;right:0;top:18px;width:132px;height:132px;
-  border-radius:50%;background:#D2D1CF;z-index:2;pointer-events:none;overflow:hidden;
-  box-shadow:0 0 0 6px rgba(33,51,90,.10)}
+.ava{float:right;width:124px;margin:4px 0 14px 24px;text-align:center;position:relative;z-index:2}
+.avac{width:124px;height:124px;border-radius:50%;background:#D2D1CF;overflow:hidden}
 .ava img{width:100%;height:100%;object-fit:cover;display:none}
 .ava.on img{display:block}
-@media(max-width:900px){.ava.on{width:92px;height:92px;top:12px}}
+.ava.on .avac{box-shadow:0 0 0 5px rgba(33,51,90,.10)}
+.avan{margin-top:9px;font-family:var(--display);font-weight:700;font-size:13.5px;
+  line-height:1.2;color:var(--ink);overflow-wrap:anywhere}
+.avau{margin-top:3px;font-family:var(--mono);font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+@media(max-width:640px){.ava{width:88px;margin:2px 0 10px 16px}.avac{width:88px;height:88px}
+  .avan{font-size:12px;margin-top:7px}.avau{font-size:10px}}
 /* экран входа: пока не вошёл, анкеты не видно */
 body.locked .step, body.locked .stickybar{display:none!important}
 .gate{display:none}
@@ -363,9 +366,13 @@ body.locked .gate{display:block}
 </head>
 <body>
 
-<div class="ava" id="ava"><img id="avaImg" alt=""></div>
 <div class="wrap">
   <div class="hero">
+    <div class="ava" id="ava">
+      <div class="avac"><img id="avaImg" alt=""></div>
+      <div class="avan" id="avaName"></div>
+      <div class="avau" id="avaUser"></div>
+    </div>
     <div class="eyebrow"><span class="dot"></span>Паспорт AI-Инженера · Анкета</div>
     <h1>Диагностика потенциала в профессии <em>AI-Инженера</em></h1>
     <p>5 коротких страниц. Ответы соберутся в твой личный паспорт: в каких направлениях ИИ-услуг у тебя больше всего потенциала и где тебе будет проще и быстрее заработать.</p>
@@ -405,6 +412,10 @@ body.locked .gate{display:block}
     <p class="pagesub">Как в настоящем паспорте, только без очередей и госпошлины.</p>
 
     <div class="q" data-key="name" style="display:none"><input type="text"></div>
+    <div class="q" data-key="phone" data-req="1">
+      <div class="q-label">Номер телефона <span class="req">*</span></div>
+      <input type="tel" inputmode="tel" placeholder="+7 999 123-45-67">
+    </div>
     <div class="q" data-key="job">
       <div class="q-label">Кем работаешь сейчас?</div>
       <input type="text" placeholder="Например: менеджер, водитель, в декрете…">
@@ -718,6 +729,9 @@ function lockGate(){
 function tgFill(u){
   const ava = document.getElementById('ava');
   if(u.photo_url){ const im = document.getElementById('avaImg'); im.src = u.photo_url; ava.classList.add('on'); }
+  const fio = [u.first_name,u.last_name].filter(Boolean).join(' ');
+  document.getElementById('avaName').textContent = fio;
+  document.getElementById('avaUser').textContent = u.username ? '@' + u.username : '';
   const nameQ = document.querySelector('.q[data-key="name"] input');
   if(nameQ){ nameQ.value = [u.first_name,u.last_name].filter(Boolean).join(' ');
     nameQ.dispatchEvent(new Event('input',{bubbles:true})); }
@@ -771,6 +785,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
       box.classList.add('done');
       if(saved.photo){ const im=document.getElementById('avaImg'); im.src=saved.photo;
         document.getElementById('ava').classList.add('on'); }
+      document.getElementById('avaName').textContent = saved.name || '';
+      document.getElementById('avaUser').textContent = saved.username ? '@' + saved.username : '';
       const nq = document.querySelector('.q[data-key="name"] input');
       if(nq) { nq.value = saved.name || ''; nq.dispatchEvent(new Event('input',{bubbles:true})); }
       document.getElementById('tgWidget').innerHTML =
