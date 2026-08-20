@@ -349,9 +349,12 @@ footer{font-family:var(--mono);color:#6E7789}
 .tg-me img{width:38px;height:38px;border-radius:50%;object-fit:cover}
 
 .ava{position:absolute;top:22px;right:0;width:88px;text-align:center;z-index:2;pointer-events:none}
-.avac{width:88px;height:88px;border-radius:50%;background:#D2D1CF;overflow:hidden;margin:0 auto}
-.ava img{width:100%;height:100%;object-fit:cover;display:none}
+.avac{width:88px;height:88px;border-radius:50%;background:#D2D1CF;overflow:hidden;margin:0 auto;position:relative}
+.avai{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-weight:800;font-size:26px;color:#8C8C8A}
+.ava img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
 .ava.on img{display:block}
+.ava.on .avai{display:none}
 .ava.on .avac{box-shadow:0 0 0 5px rgba(33,51,90,.10)}
 .avan{margin-top:9px;font-family:var(--display);font-weight:700;font-size:12.5px;
   line-height:1.2;color:var(--ink);overflow-wrap:anywhere}
@@ -377,7 +380,7 @@ body.locked .gate{display:block}
 <div class="wrap">
   <div class="hero">
     <div class="ava" id="ava">
-      <div class="avac"><img id="avaImg" alt=""></div>
+      <div class="avac"><span class="avai" id="avaIni"></span><img id="avaImg" alt=""></div>
       <div class="avan" id="avaName"></div>
       <div class="avau" id="avaUser"></div>
     </div>
@@ -734,17 +737,36 @@ function lockGate(){
   if(btn){ btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = ''; btn.title = ''; }
 }
 
+/** старые сессии хранят фото с mime application/octet-stream, браузер его не рисует */
+function fixPhoto(src){
+  return src ? String(src).replace(/^data:application\/octet-stream;/, 'data:image/jpeg;') : '';
+}
+function avaShow(name, username, photo){
+  const ava = document.getElementById('ava');
+  const im  = document.getElementById('avaImg');
+  document.getElementById('avaName').textContent = name || '';
+  document.getElementById('avaUser').textContent = username ? '@' + username : '';
+  document.getElementById('avaIni').textContent =
+    (name || username || '').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+  const src = fixPhoto(photo);
+  ava.classList.remove('on');
+  if(src){
+    im.onload  = ()=> ava.classList.add('on');
+    im.onerror = ()=> ava.classList.remove('on');
+    im.src = src;
+  }
+}
+
 function tgFill(u){
   const ava = document.getElementById('ava');
-  if(u.photo_url){ const im = document.getElementById('avaImg'); im.src = u.photo_url; ava.classList.add('on'); }
   const fio = [u.first_name,u.last_name].filter(Boolean).join(' ');
-  document.getElementById('avaName').textContent = fio;
-  document.getElementById('avaUser').textContent = u.username ? '@' + u.username : '';
+  avaShow(fio, u.username, u.photo_url);
   const nameQ = document.querySelector('.q[data-key="name"] input');
   if(nameQ){ nameQ.value = [u.first_name,u.last_name].filter(Boolean).join(' ');
     nameQ.dispatchEvent(new Event('input',{bubbles:true})); }
   window.__tg = {id:u.id, username:u.username||'', name:[u.first_name,u.last_name].filter(Boolean).join(' '), photo:u.photo_url||''};
   try{ localStorage.setItem('tg_user', JSON.stringify(window.__tg)); }catch(e){}
+  syncAnswers('вход');
   const box = document.getElementById('tgbox'); box.classList.add('done');
   document.getElementById('tgWidget').innerHTML =
     `<div class="tg-me">${u.photo_url?`<img src="${u.photo_url}">`:''}<span>${window.__tg.name}${u.username?' · @'+u.username:''}</span></div>`;
@@ -791,10 +813,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       const nameQ = document.querySelector('.q[data-key="name"] input');
       if(nameQ && !nameQ.value){ nameQ.value = saved.name || ''; nameQ.dispatchEvent(new Event('input',{bubbles:true})); }
       box.classList.add('done');
-      if(saved.photo){ const im=document.getElementById('avaImg'); im.src=saved.photo;
-        document.getElementById('ava').classList.add('on'); }
-      document.getElementById('avaName').textContent = saved.name || '';
-      document.getElementById('avaUser').textContent = saved.username ? '@' + saved.username : '';
+      avaShow(saved.name, saved.username, saved.photo);
       const nq = document.querySelector('.q[data-key="name"] input');
       if(nq) { nq.value = saved.name || ''; nq.dispatchEvent(new Event('input',{bubbles:true})); }
       document.getElementById('tgWidget').innerHTML =
@@ -923,6 +942,7 @@ function validateStep(i){
 
 nextBtn.addEventListener('click', ()=>{
   if(!validateStep(cur)) return;
+  syncAnswers('стр. ' + (cur+1) + ' из ' + steps.length);
   if(cur < steps.length-1){ showStep(cur+1); }
   else buildPassport();
 });
@@ -1108,12 +1128,42 @@ function buildPassport(){
   setTimeout(()=>document.getElementById('results').scrollIntoView({behavior:'smooth', block:'start'}), 80);
 }
 
+/** один и тот же sid на всю анкету: приёмник обновляет одну строку, а не плодит новые */
+function passSid(){
+  const tg = window.__tg || {};
+  if(tg.id) return 'tg' + tg.id;
+  let v = null;
+  try{ v = localStorage.getItem('pass_sid'); }catch(e){}
+  if(!v){
+    v = 's' + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4);
+    try{ localStorage.setItem('pass_sid', v); }catch(e){}
+  }
+  return v;
+}
+
+function syncAnswers(stage){
+  if(!SHEET_WEBHOOK) return;
+  const tg = window.__tg || {};
+  const payload = Object.assign({
+    sid: passSid(),
+    'этап': stage,
+    tg_id: tg.id || '',
+    tg_username: tg.username || '',
+    tg_name: tg.name || ''
+  }, collectAnswers());
+  const fd = new FormData();
+  Object.entries(payload).forEach(([k,v])=>fd.append(k, v==null?'':String(v)));
+  fetch(SHEET_WEBHOOK, {method:'POST', body:fd, mode:'no-cors'}).catch(()=>{});
+}
+
 document.getElementById('sendBtn').addEventListener('click', async ()=>{
     const b = document.getElementById('sendBtn');
     if(b.dataset.sent) return;
     const data = collectAnswers();
     const r = window.__result || {};
     const payload = {
+      sid: passSid(),
+      'этап': 'паспорт собран',
       ts: new Date().toISOString(),
       serial: r.serial || '',
       tg_id: (window.__tg||{}).id || '',

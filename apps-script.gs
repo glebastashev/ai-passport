@@ -74,15 +74,53 @@ function pull_() {
   }
 }
 
+var ORDER = ['sid', 'обновлено', 'этап', 'tg_name', 'tg_username', 'tg_id',
+             'phone', 'job', 'income', 'why_me'];
+
+/** одна анкета — одна строка: по sid находим её и обновляем, а не добавляем новую */
 function doPost(e) {
   var data = (e && e.parameter) ? e.parameter : {};
-  var sh = sheet_(SHEET_NAME);
-  var headers = sh.getLastRow() > 0 ? sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0] : [];
-  Object.keys(data).forEach(function (k) { if (headers.indexOf(k) === -1) headers.push(k); });
-  sh.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
-  sh.appendRow(headers.map(function (h) { return data[h] || ''; }));
-  return ContentService.createTextOutput(JSON.stringify({ ok: true }))
-    .setMimeType(ContentService.MimeType.JSON);
+  var lock = LockService.getScriptLock();
+  lock.tryLock(20000);
+  try {
+    var sh = sheet_(SHEET_NAME);
+    var last = sh.getLastRow();
+    var headers = last > 0 ? sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].filter(String) : [];
+    if (!headers.length) headers = ORDER.slice();
+    Object.keys(data).forEach(function (k) { if (headers.indexOf(k) === -1) headers.push(k); });
+    if (headers.indexOf('обновлено') === -1) headers.push('обновлено');
+    sh.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight('bold');
+
+    var sid = String(data.sid || '');
+    var target = 0;
+    if (sid && last > 1) {
+      var col = headers.indexOf('sid') + 1;
+      if (col > 0) {
+        var vals = sh.getRange(2, col, last - 1, 1).getValues();
+        for (var i = vals.length - 1; i >= 0; i--) {
+          if (String(vals[i][0]) === sid) { target = i + 2; break; }
+        }
+      }
+    }
+
+    var row = headers.map(function (h) {
+      if (h === 'обновлено') return new Date();
+      return data[h] !== undefined ? data[h] : '';
+    });
+
+    if (target) {
+      var old = sh.getRange(target, 1, 1, headers.length).getValues()[0];
+      row = row.map(function (v, i) { return (v === '' && old[i] !== '') ? old[i] : v; });
+      sh.getRange(target, 1, 1, headers.length).setValues([row]);
+    } else {
+      target = sh.getLastRow() + 1;
+      sh.getRange(target, 1, 1, headers.length).setValues([row]);
+    }
+    return ContentService.createTextOutput(JSON.stringify({ ok: true, row: target }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function doGet(e) {
